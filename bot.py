@@ -157,13 +157,14 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, route_msg))
     app.run_polling()
 
+if __
 if __name__ == "__main__":
     import asyncio, os
     from threading import Thread
     from http.server import HTTPServer, BaseHTTPRequestHandler
 
-    # --- keep-alive: Render needs a port to mark you LIVE ---
-    class SilentHandler(BaseHTTPRequestHandler):
+    # keep-alive: bind a port so Render marks you LIVE
+    class _H(BaseHTTPRequestHandler):
         def do_GET(self):
             self.send_response(200)
             self.end_headers()
@@ -171,9 +172,8 @@ if __name__ == "__main__":
             pass
 
     def keep_alive():
-        HTTPServer(("0.0.0.0", int(os.getenv("PORT", 8080))), SilentHandler).serve_forever()
+        HTTPServer(("0.0.0.0", int(os.getenv("PORT", 8080))), _H).serve_forever()
 
     Thread(target=keep_alive, daemon=True).start()
 
-    # --- fresh loop per boot (kills "event loop is closed") ---
     asyncio.run(main())
