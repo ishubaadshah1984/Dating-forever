@@ -157,4 +157,4 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, route_msg))
     app.run_polling()
     
-if __name__ == "__main__":___
+if __name__ == "__main__":__
