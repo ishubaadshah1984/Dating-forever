@@ -1,7 +1,7 @@
-import logging
+CallbackQueryHanInlineKeyboardMarkupr logging
 import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHanInlineKeyboardMarkupr, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 
 logging.basicConfig(level=logging.INFO)
 Updateateger = logging.getLogger(__name__)
