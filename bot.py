@@ -1,4 +1,4 @@
-import logging
+name logging
 import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
@@ -156,7 +156,7 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, route_msg))
     app.run_polling()
 
-if name == "main":
+if __name__ = "__main__"
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(main())
