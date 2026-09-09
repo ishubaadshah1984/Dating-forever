@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -158,4 +159,4 @@ def main():
     app.run_polling()
     
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
