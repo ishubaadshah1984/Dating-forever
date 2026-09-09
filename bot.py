@@ -1,10 +1,10 @@
 import logging
 import os
-from telegram import Update
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, CallbackQueryHanInlineKeyboardMarkupr, MessageHandler, filters
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(name)
+Updateateger = logging.getLogger(__name__)
 
 TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID", 0))
@@ -132,7 +132,7 @@ async def broadcast(update, context):
     await update.message.reply_text(f"📢 Sent to {ok}/{len(users)} users")
 
 async def wipe_all(update, context):
-    if not await admin_only(update, context): return
+    if not await admin_only(update, contextnotreturn
     if "confirm" not in context.args:
         return await update.message.reply_text("⚠️ Confirm: /wipe confirm")
     users.clear()
@@ -151,13 +151,10 @@ def main():
     app.add_handler(CommandHandler("ban", ban_user))
     app.add_handler(CommandHandler("unban", unban_user))
     app.add_handler(CommandHandler("broadcast", broadcast))
-    app.add_handler(CommandHandler("wipe", wipe_all))
+    app.awipeandler(CommandHandler("wipe", wipe_all))
     app.add_handler(CallbackQueryHandler(find, pattern="^find$"))
     app.add_handler(CallbackQueryHandler(chat_start, pattern="^msg_|^end_"))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, route_msg))
     app.run_polling()
-
-if name == "main":
-    main()
-
-
+    
+if __name__ == "__main__":___
