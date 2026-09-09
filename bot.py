@@ -158,14 +158,11 @@ def main():
     app.run_polling()
 
 async def main():
-    """Builds the app, registers handlers, and starts polling."""
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(find, pattern="^find$"))
     app.add_handler(CallbackQueryHandler(chat_start, pattern="^msg_"))
-    app.add_handler(CallbackQueryHandler(end_chat, pattern="^end_"))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, route_msg))
-    # ⬇️ add any OTHER handlers you have here too
     await app.run_polling()
 
 if __name__ == "__main__":
