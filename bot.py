@@ -161,6 +161,4 @@ if name == "main":
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(main())
-```
 
-Replace everything in bot.py with this. Save → commit → push → deploy. 💪
