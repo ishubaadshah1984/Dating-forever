@@ -132,7 +132,7 @@ async def broadcast(update, context):
     await update.message.reply_text(f"📢 Sent to {ok}/{len(users)} users")
 
 async def wipe_all(update, context):
-    if not await admin_only(update, contextnotreturn)
+    if not await admin_only(update, context):return
     if "confirm" not in context.args:
         return await update.message.reply_text("⚠️ Confirm: /wipe confirm")
     users.clear()
