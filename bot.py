@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 Updatelogger = logging.getLogger(__name__)
 
 TOKEN = os.getenv("BOT_TOKEN")
-ADMIN_ID = int(os.getenv("ADMIN_ID", 0))
+ADMIN_ID = int(os.getenv("ADMIN_ID", 6205405530)
 
 users = {}
 matches = []
