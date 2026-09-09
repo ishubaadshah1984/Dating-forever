@@ -82,4 +82,85 @@ async def stats(update, context):
 async def all_users(update, context):
     if not await admin_only(update, context): return
     lines = [f"{uid} | {p['name']} | @{p['username']}" for uid, p in users.items()]
-    await update.message.reply_text(f"Subscribers ({len(users)}):\n" +
+    await update.message.reply_text(f"Subscribers ({len(users)}):\n" +("\n".join(lines) or "None"))
+
+async def history(update, context):
+    if not await admin_only(update, context): return
+    try:
+        parts = update.message.text.split(" ")
+        if len(parts) < 2:
+            await update.message.reply_text("Usage: /history user1id-user2id")
+            return
+        msgs = chats.get(parts[1], [])
+        if not msgs:
+            await update.message.reply_text("No messages found.")
+            return
+        await update.message.reply_text("\n".join(f"{m['from']}: {m['text']}" for m in msgs))
+    except Exception as e:
+        await update.message.reply_text(f"Error: {e}")
+
+async def ban_user(update, context):
+    if not await admin_only(update, context): return
+    try:
+        uid = int(context.args[0])
+        banned.add(uid)
+        await update.message.reply_text(f"🚫 Banned {uid}")
+    except (IndexError, ValueError):
+        await update.message.reply_text("Usage: /ban <userid>")
+
+async def unban_user(update, context):
+    if not await admin_only(update, context): return
+    try:
+        uid = int(context.args[0])
+        banned.discard(uid)
+        await update.message.reply_text(f"✅ Unbanned {uid}")
+    except (IndexError, ValueError):
+        await update.message.reply_text("Usage: /unban <userid>")
+
+async def broadcast(update, context):
+    if not await admin_only(update, context): return
+    text = " ".join(context.args)
+    if not text:
+        return await update.message.reply_text("Usage: /broadcast <message>")
+    ok = 0
+    for uid in list(users):
+        try:
+            await context.bot.send_message(uid, f"📢 {text}")
+            ok += 1
+        except Exception:
+            pass
+    await update.message.reply_text(f"📢 Sent to {ok}/{len(users)} users")
+
+async def wipe_all(update, context):
+    if not await admin_only(update, context): return
+    if "confirm" not in context.args:
+        return await update.message.reply_text("⚠️ Confirm: /wipe confirm")
+    users.clear()
+    matches.clear()
+    chats.clear()
+    pending.clear()
+    banned.clear()
+    await update.message.reply_text("🗑️ All data wiped")
+
+def main():
+    app = Application.builder().token(TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("stats", stats))
+    app.add_handler(CommandHandler("all_users", all_users))
+    app.add_handler(CommandHandler("history", history))
+    app.add_handler(CommandHandler("ban", ban_user))
+    app.add_handler(CommandHandler("unban", unban_user))
+    app.add_handler(CommandHandler("broadcast", broadcast))
+    app.add_handler(CommandHandler("wipe", wipe_all))
+    app.add_handler(CallbackQueryHandler(find, pattern="^find$"))
+    app.add_handler(CallbackQueryHandler(chat_start, pattern="^msg_|^end_"))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, route_msg))
+    app.run_polling()
+
+if name == "main":
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
+```
+
+Replace everything in bot.py with this. Save → commit → push → deploy. 💪
