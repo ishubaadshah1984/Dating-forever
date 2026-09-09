@@ -1,6 +1,6 @@
 import logging
 import os
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 
 logging.basicConfig(level=logging.INFO)
@@ -13,12 +13,12 @@ users = {}
 matches = []
 pending = {}
 chats = {}
-banned = {}
+banned = set()
 
 def is_admin(uid):
     return uid == ADMIN_ID
 
-async def start(update: Update, context):
+async def start(update, context):
     u = update.effective_user
     users[u.id] = {"name": u.first_name, "username": u.username}
     kb = [[InlineKeyboardButton("👋 Find a partner", callback_data="find")]]
@@ -26,7 +26,7 @@ async def start(update: Update, context):
         f"Hi {u.first_name}! Ready to meet someone?",
         reply_markup=InlineKeyboardMarkup(kb))
 
-async def find(update: Update, context):
+async def find(update, context):
     q = update.callback_query
     uid = q.from_user.id
     if uid in banned:
@@ -46,7 +46,7 @@ async def find(update: Update, context):
         return await q.answer("Matched!")
     await q.answer("No one available yet 😕")
 
-async def chat_start(update: Update, context):
+async def chat_start(update, context):
     q = update.callback_query
     parts = q.data.split("_")
     a, b = int(parts[1]), int(parts[2])
@@ -54,7 +54,7 @@ async def chat_start(update: Update, context):
     await q.answer()
     await q.message.reply_text("Now type your message — it goes to your partner. IDs hidden 🔒")
 
-async def route_msg(update: Update, context):
+async def route_msg(update, context):
     u = update.effective_user
     if u.id in banned:
         return await update.message.reply_text("You are banned 🚫")
@@ -66,27 +66,25 @@ async def route_msg(update: Update, context):
     await context.bot.send_message(partner, f"💬 {update.message.text}")
     await update.message.reply_text("✅ Sent")
 
----------- ADMIN COMMANDS ----------
-async def admin_only(update: Update, context):
+async def admin_only(update, context):
     if not is_admin(update.effective_user.id):
         await update.message.reply_text("Admin only ❌")
         return False
     return True
 
-async def stats(update: Update, context):
+async def stats(update, context):
     if not await admin_only(update, context): return
     await update.message.reply_text(
         f"📊 Stats\nUsers: {len(users)}\nMatches: {len(matches)}\n"
         f"Banned: {len(banned)}\nMessages: {sum(len(v) for v in chats.values())}")
 
-async def all_users(update: Update, context):
+async def all_users(update, context):
     if not await admin_only(update, context): return
-
-= [f"{uid} | {p['name']} | @{p['username']}" for uid, p in users.items()]
+    lines = [f"{uid} | {p['name']} | @{p['username']}" for uid, p in users.items()]
     await update.message.reply_text(f"Subscribers ({len(users)}):\n" +
-                                    ("\n".join(lines) or "None"))
+("\n".join(lines) or "None"))
 
-async def history(update: Update, context):
+async def history(update, context):
     if not await admin_only(update, context): return
     try:
         parts = update.message.text.split(" ")
@@ -101,7 +99,7 @@ async def history(update: Update, context):
     except Exception as e:
         await update.message.reply_text(f"Error: {e}")
 
-async def ban_user(update: Update, context):
+async def ban_user(update, context):
     if not await admin_only(update, context): return
     try:
         uid = int(context.args[0])
@@ -110,7 +108,7 @@ async def ban_user(update: Update, context):
     except (IndexError, ValueError):
         await update.message.reply_text("Usage: /ban <userid>")
 
-async def unban_user(update: Update, context):
+async def unban_user(update, context):
     if not await admin_only(update, context): return
     try:
         uid = int(context.args[0])
@@ -119,7 +117,7 @@ async def unban_user(update: Update, context):
     except (IndexError, ValueError):
         await update.message.reply_text("Usage: /unban <userid>")
 
-async def broadcast(update: Update, context):
+async def broadcast(update, context):
     if not await admin_only(update, context): return
     text = " ".join(context.args)
     if not text:
@@ -133,14 +131,17 @@ async def broadcast(update: Update, context):
             pass
     await update.message.reply_text(f"📢 Sent to {ok}/{len(users)} users")
 
-async def wipe_all(update: Update, context):
+async def wipe_all(update, context):
     if not await admin_only(update, context): return
     if "confirm" not in context.args:
         return await update.message.reply_text("⚠️ Confirm: /wipe confirm")
-    users.clear(); matches.clear(); chats.clear(); pending.clear(); banned.clear()
+    users.clear()
+    matches.clear()
+    chats.clear()
+    pending.clear()
+    banned.clear()
     await update.message.reply_text("🗑️ All data wiped")
 
----------- MAIN ----------
 def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
@@ -158,3 +159,16 @@ def main():
 
 if name == "main":
     main()
+
+I flagged two things to verify — check the imports at the top. The correct ones are:
+python
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
+```
+
+
+
+
+
+
+    
