@@ -82,8 +82,7 @@ async def stats(update: Update, context):
 async def all_users(update: Update, context):
     if not await admin_only(update, context): return
 
-DeepSeek, [09/09/26, 2:19 pm]
-lines = [f"{uid} | {p['name']} | @{p['username']}" for uid, p in users.items()]
+= [f"{uid} | {p['name']} | @{p['username']}" for uid, p in users.items()]
     await update.message.reply_text(f"Subscribers ({len(users)}):\n" +
                                     ("\n".join(lines) or "None"))
 
