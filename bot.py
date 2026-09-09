@@ -160,15 +160,4 @@ def main():
 if name == "main":
     main()
 
-I flagged two things to verify — check the imports at the top. The correct ones are:
-python
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
-```
 
-
-
-
-
-
-    
