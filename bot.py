@@ -151,7 +151,7 @@ def main():
     app.add_handler(CommandHandler("ban", ban_user))
     app.add_handler(CommandHandler("unban", unban_user))
     app.add_handler(CommandHandler("broadcast", broadcast))
-    app.awipeandler(CommandHandler("wipe", wipe_all))
+    app.add_handler(CommandHandler("wipe", wipe_all))
     app.add_handler(CallbackQueryHandler(find, pattern="^find$"))
     app.add_handler(CallbackQueryHandler(chat_start, pattern="^msg_|^end_"))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, route_msg))
