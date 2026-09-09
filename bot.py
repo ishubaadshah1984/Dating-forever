@@ -158,7 +158,22 @@ def main():
     app.run_polling()
 
 if __name__ == "__main__":
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(main())
+    import asyncio, os
+    from threading import Thread
+    from http.server import HTTPServer, BaseHTTPRequestHandler
 
+    # --- keep-alive: Render needs a port to mark you LIVE ---
+    class SilentHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.end_headers()
+        def log_message(self, *a):
+            pass
+
+    def keep_alive():
+        HTTPServer(("0.0.0.0", int(os.getenv("PORT", 8080))), SilentHandler).serve_forever()
+
+    Thread(target=keep_alive, daemon=True).start()
+
+    # --- fresh loop per boot (kills "event loop is closed") ---
+    asyncio.run(main())
