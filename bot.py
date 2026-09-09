@@ -157,12 +157,22 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, route_msg))
     app.run_polling()
 
+async def main():
+    """Builds the app, registers handlers, and starts polling."""
+    app = Application.builder().token(TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CallbackQueryHandler(find, pattern="^find$"))
+    app.add_handler(CallbackQueryHandler(chat_start, pattern="^msg_"))
+    app.add_handler(CallbackQueryHandler(end_chat, pattern="^end_"))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, route_msg))
+    # ⬇️ add any OTHER handlers you have here too
+    await app.run_polling()
+
 if __name__ == "__main__":
-    import asyncio, os
+    import os
     from threading import Thread
     from http.server import HTTPServer, BaseHTTPRequestHandler
 
-    # keep-alive: bind a port so Render marks you LIVE
     class _H(BaseHTTPRequestHandler):
         def do_GET(self):
             self.send_response(200)
@@ -174,5 +184,4 @@ if __name__ == "__main__":
         HTTPServer(("0.0.0.0", int(os.getenv("PORT", 8080))), _H).serve_forever()
 
     Thread(target=keep_alive, daemon=True).start()
-
     asyncio.run(main())
