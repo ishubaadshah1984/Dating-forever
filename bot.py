@@ -166,19 +166,4 @@ async def main():
     await app.run_polling()
 
 if __name__ == "__main__":
-    import os
-    from threading import Thread
-    from http.server import HTTPServer, BaseHTTPRequestHandler
-
-    class _H(BaseHTTPRequestHandler):
-        def do_GET(self):
-            self.send_response(200)
-            self.end_headers()
-        def log_message(self, *a):
-            pass
-
-    def keep_alive():
-        HTTPServer(("0.0.0.0", int(os.getenv("PORT", 8080))), _H).serve_forever()
-
-    Thread(target=keep_alive, daemon=True).start()
     asyncio.run(main())
