@@ -91,7 +91,17 @@ async def reply_cb(update, context):
     if uid not in matches: return await q.answer("Session ended", show_alert=True)
     await q.answer("Chat open 💬")
 
-async def main_cb(update, context):
+async def admin_panel_cb(update, context):
+    q = update.callback_query
+    uid = q.from_user.id
+    if uid != ADMIN_ID:
+        return await q.answer("Not allowed", show_alert=True)
+    kb = [[InlineKeyboardButton("📊 Stats", callback_data="stats"),
+           InlineKeyboardButton("⚠️ Unban", callback_data="unban")]]
+    await q.edit_message_text(f"Admin panel — {len(users)} users, {len(matches)} chats",
+                              reply_markup=InlineKeyboardMarkup(kb))
+  
+async main_cb(update, context):
     q = update.callback_query
     if q.data == "find": return await find_cb(update, context)
     if q.data == "admin_panel": return await admin_panel_cb(update, context)
