@@ -105,6 +105,7 @@ async def main_cb(update, context):
     q = update.callback_query
     if q.data == "find": return await find_cb(update, context)
     if q.data == "admin_panel": return await admin_panel_cb(update, context)
+    return await reply_cb(update, context)it admin_panel_cb(update, context)
     return await reply_cb(update, context)
   
 async def main():
