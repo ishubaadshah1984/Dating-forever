@@ -160,8 +160,10 @@ def main():
     app.add_handler(CommandHandler("unban", unban_cmd))
     app.add_handler(CallbackQueryHandler(main_cb))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
-    app.run_polling()
-    logger.info("Bot started")
+    import asyncio
+
+async def main():
+    await app.run_polling()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
