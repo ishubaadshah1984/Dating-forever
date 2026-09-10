@@ -145,7 +145,7 @@ async def admin_panel_cb(update, context):
         f"🛡️ Admin\nActive: {len(users)} users · {len(pending)} searching\n"
         f"Commands:\n/ban <id>  /unban <id>")
 
-def main_cb(update, context):
+async def  main_cb(update, context):
     q = update.callback_query
     if q.data == "find":
         return await find_cb(update, context)
