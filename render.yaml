@@ -1,0 +1,21 @@
+# Exported from Render on 2026-09-10T19:28:12Z
+version: "1"
+projects:
+- name: Ishu
+  environments:
+  - name: Production
+    services:
+    - type: web
+      name: Dating-forever
+      runtime: python
+      repo: https://github.com/ishubaadshah1984/Dating-forever
+      plan: free
+      envVars:
+      - key: ADMIN_ID
+        sync: false
+      - key: TOKEN
+        sync: false
+      region: oregon
+      buildCommand: pip install -r requirements.txt
+      startCommand: python bot.py
+      autoDeployTrigger: commit
