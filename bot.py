@@ -163,7 +163,10 @@ async def main():
     app.add_handler(CallbackQueryHandler(find, pattern="^find$"))
     app.add_handler(CallbackQueryHandler(chat_start, pattern="^msg_"))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, route_msg))
-    await app.run_polling()
+    await app.initialize()
+    await app.start()
+    await app.updater.start_polling()
+    await asyncio.Event().wait()
 
 if __name__ == "__main__":
     asyncio.run(main())
