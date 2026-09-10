@@ -1,4 +1,4 @@
-install logging, os, re
+import logging, os, re
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
                          MessageHandler, filters)
