@@ -148,11 +148,10 @@ async def stats_cb(update, context):
 
 async def chats_cb(update, context):
     q = update.callback_query
-  if not is_admin(q.from_user.id): return await q.answer("Not allowed", show_alert=True)
+    if not is_admin(q.from_user.id): return await q.answer("Not allowed", show_alert=True)
     if not matches: return await q.answer("No active chats", show_alert=True)
     lines = [f"{users[uid]['anon']} <-> {m['other_anon']}" for uid, m in matches.items()]
     await q.message.reply_text("🗣 Active chats\n" + "\n".join(lines))
-
 async def banned_cb(update, context):
     q = update.callback_query
     if not is_admin(q.from_user.id): return await q.answer("Not allowed", show_alert=True)
