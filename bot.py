@@ -80,8 +80,7 @@ async def find_cb(update, context):
 
 async def update_msg(update, context):
   uid = update.effective_user.id
-    if uid in banned:
-        return await update.message.reply_text("🚫 You are banned.")
+    if uid in banned: return await update.message.reply_text("🚫 You are banned.")
     if URL_PATTERN.search(update.message.text):
         return await update.message.reply_text("Links not allowed 🔒")
     parts = update.message.text.split()
