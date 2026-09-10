@@ -71,15 +71,18 @@ async def find_cb(update, context):
 
 async def update_msg(update, context):
     uid = update.effective_user.id
-    if uid in banned: return await update.message.reply_text("🚫 Banned.")
-    if URL_PATTERN.search(update.message.text): return await update.message.reply_text("Links not allowed 🔒")
+    if uid in banned:
+        return await update.message.reply_text("🚫 Banned.")
+    if URL_PATTERN.search(update.message.text):
+        return await update.message.reply_text("Links not allowed 🔒")
     parts = update.message.text.split()
-  if not users[uid].get("age") and parts and parts[0].isdigit():
+    if not users[uid].get("age") and parts and parts[0].isdigit():
         return await set_profile(update, context)
     if uid in matches and matches[uid].get("other"):
         await context.bot.send_message(matches[uid]["other"], f"💬 {update.message.text}")
     else:
         await update.message.reply_text("No active chat — tap 🔍 Find partner")
+
 
 async def reply_cb(update, context):
     q = update.callback_query; uid = q.from_user.id
