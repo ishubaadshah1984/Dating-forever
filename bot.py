@@ -104,7 +104,6 @@ async def main():
     await app.initialize()
     await app.start()
     await app.updater.start_polling()
-    await app.idle()
 
 if __name__ == "__main__":
     asyncio.run(main())
