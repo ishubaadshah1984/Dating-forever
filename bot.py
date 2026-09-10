@@ -1,172 +1,167 @@
-import asyncio
 import logging
 import os
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
+import re
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
+                          MessageHandler, filters)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TOKEN = "8763867582:AAHprPhPZHc2GfzsH2_GAemnUZkXlI3I62Q"
-ADMIN_ID = int(os.getenv("ADMIN_ID", 6205405530))
+TOKEN = os.getenv("TOKEN")
+ADMIN_ID = int(os.getenv("ADMIN_ID", "6205405530"))
 
 users = {}
-matches = []
-pending = {}
-chats = {}
+matches = {}
+pending = []
 banned = set()
+
+URL_PATTERN = re.compile(r'https?://\S+|www\.\S+')
+
+def anon_name(uid):
+    return f"User_{str(uid)[-4:]}"
 
 def is_admin(uid):
     return uid == ADMIN_ID
 
-async def start(update, context):
+def reg_user(u):
+    users.setdefault(u.id, {
+        "name": u.first_name or "User",
+        "anon": anon_name(u.id),
+        "age": None, "city": None, "bio": None
+    })
+
+def profile_text(uid):
+    p = users[uid]
+    info = f"{p['anon']}"
+    if p['age']:
+        info += f" · {p['age']}"
+    if p['city']:
+        info += f" · {p['city']}"
+    if p['bio']:
+        info += f"\n💬 \"{p['bio']}\""
+    return info
+
+async def try_match(context):
+    global pending
+    while len(pending) >= 2:
+        a = pending.pop(0)
+        b = pending.pop(0)
+        if a in banned or b in banned:
+            continue
+        matches[a] = {"other_anon": users[b]["anon"], "other_info": profile_text(b)}
+        matches[b] = {"other_anon": users[a]["anon"], "other_info": profile_text(a)}
+        kb = [[InlineKeyboardButton("✍️ Say hi", callback_data=f"msg_{b}")]]
+        await context.bot.send_message(a, f"🎉 Matched with {users[b]['anon']}!\n{profile_text(b)}",
+                                       reply_markup=InlineKeyboardMarkup(kb))
+        kb2 = [[InlineKeyboardButton("✍️ Say hi", callback_data=f"msg_{a}")]]
+        await context.bot.send_message(b, f"🎉 Matched with {users[a]['anon']}!\n{profile_text(a)}",
+                                       reply_markup=InlineKeyboardMarkup(kb2))
+
+async def start_cmd(update, context):
     u = update.effective_user
-    users[u.id] = {"name": u.first_name, "username": u.username}
-    kb = [[InlineKeyboardButton("👋 Find a partner", callback_data="find")]]
+    reg_user(u)
+    kb = [[InlineKeyboardButton("🔍 Find partner", callback_data="find")]]
+    if is_admin(u.id):
+        kb.append([InlineKeyboardButton("🛡️ Admin panel", callback_data="admin_panel")])
     await update.message.reply_text(
-        f"Hi {u.first_name}! Ready to meet someone?",
+        f"Hi {u.first_name}! Set your profile:\nSend: `age city`\nExample: `24 Berlin`\nThen tap find 👇",
         reply_markup=InlineKeyboardMarkup(kb))
 
-async def find(update, context):
+async def set_profile(update, context):
+    u = update.effective_user
+    reg_user(u)
+    parts = update.message.text.split()
+    if len(parts) >= 1 and parts[0].isdigit() and len(parts) <= 3:
+        users[u.id]["age"] = parts[0]
+        if len(parts) > 1:
+            users[u.id]["city"] = " ".join(parts[1:])
+        await update.message.reply_text(f"✅ Profile: {profile_text(u.id)}")
+    else:
+        users[u.id]["bio"] = update.message.text
+        await update.message.reply_text("✅ Bio saved!")
+
+async def find_cb(update, context):
     q = update.callback_query
     uid = q.from_user.id
     if uid in banned:
-        return await q.answer("You are banned 🚫")
-    for other_id, prof in users.items():
-        if other_id == uid or other_id in banned:
-            continue
-        if any(uid in p and other_id in p for p in matches):
-            continue
-        matches.append([uid, other_id])
-        kb = [[InlineKeyboardButton("✍️ Send message", callback_data=f"msg_{uid}_{other_id}"),
-               InlineKeyboardButton("🚫 End chat", callback_data=f"end_{uid}_{other_id}")]]
-        await context.bot.send_message(uid, f"🎉 Matched with {prof['name']}! Say hi 👋",
-                                       reply_markup=InlineKeyboardMarkup(kb))
-        await context.bot.send_message(other_id, f"🎉 Matched with {users[uid]['name']}! Say hi 👋",
-                                       reply_markup=InlineKeyboardMarkup(kb))
-        return await q.answer("Matched!")
-    await q.answer("No one available yet 😕")
+        return await q.answer("🚫 Banned")
+    reg_user(q.from_user)
+    if not users[uid].get("age"):
+        return await q.answer("Set age/city first!", show_alert=True)
+    pending.append(uid)
+    await q.answer("Searching…")
+    await try_match(context)
+async def update_msg(update, context):
+    uid = update.effective_user.id
+    if uid in banned:
+        return await update.message.reply_text("🚫 Banned.")
+    if URL_PATTERN.search(update.message.text):
+        return await update.message.reply_text("Links not allowed 🔒")
+    if not users[uid].get("age") and update.message.text.split()[0].isdigit():
+        return await set_profile(update, context)
+    if uid in matches:
+        partner = matches[uid].get("other")
+        if isinstance(partner, int):
+            await context.bot.send_message(partner, f"💬 {update.message.text}")
+        else:
+            await update.message.reply_text("Choose a match via ✍️ first")
+    else:
+        await update.message.reply_text("No active chat — tap 🔍 Find partner")
 
-async def chat_start(update, context):
+async def reply_cb(update, context):
     q = update.callback_query
-    parts = q.data.split("_")
-    a, b = int(parts[1]), int(parts[2])
-    pending[q.from_user.id] = a if q.from_user.id == b else b
-    await q.answer()
-    await q.message.reply_text("Now type your message — it goes to your partner. IDs hidden 🔒")
+    src = q.from_user.id
+    target = int(q.data.split("_")[1])
+    if target not in matches and src not in matches:
+        return await q.answer("Session ended", show_alert=True)
+    matches[src] = {"other": target, "other_anon": users[target]["anon"],
+                    "other_info": profile_text(target)}
+    await q.answer("Connected!")
+    await q.message.reply_text("🔗 Chat open! Send messages freely.")
 
-async def route_msg(update, context):
-    u = update.effective_user
-    if u.id in banned:
-        return await update.message.reply_text("You are banned 🚫")
-    if u.id not in pending:
-        return await update.message.reply_text("Use /start and match first 👆")
-    partner = pending[u.id]
-    key = f"{min(u.id, partner)}-{max(u.id, partner)}"
-    chats.setdefault(key, []).append({"from": u.id, "text": update.message.text})
-    await context.bot.send_message(partner, f"💬 {update.message.text}")
-    await update.message.reply_text("✅ Sent")
-
-async def admin_only(update, context):
+async def ban_cmd(update, context):
     if not is_admin(update.effective_user.id):
-        await update.message.reply_text("Admin only ❌")
-        return False
-    return True
-
-async def stats(update, context):
-    if not await admin_only(update, context): return
-    await update.message.reply_text(
-        f"📊 Stats\nUsers: {len(users)}\nMatches: {len(matches)}\n"
-        f"Banned: {len(banned)}\nMessages: {sum(len(v) for v in chats.values())}")
-
-async def all_users(update, context):
-    if not await admin_only(update, context): return
-    lines = [f"{uid} | {p['name']} | @{p['username']}" for uid, p in users.items()]
-    await update.message.reply_text(f"Subscribers ({len(users)}):\n" +("\n".join(lines) or "None"))
-
-async def history(update, context):
-    if not await admin_only(update, context): return
+        return await update.message.reply_text("⛔ Admins only")
     try:
-        parts = update.message.text.split(" ")
-        if len(parts) < 2:
-            await update.message.reply_text("Usage: /history user1id-user2id")
-            return
-        msgs = chats.get(parts[1], [])
-        if not msgs:
-            await update.message.reply_text("No messages found.")
-            return
-        await update.message.reply_text("\n".join(f"{m['from']}: {m['text']}" for m in msgs))
-    except Exception as e:
-        await update.message.reply_text(f"Error: {e}")
+        tid = int(context.args[0].lstrip("@"))
+    except Exception:
+        return await update.message.reply_text("Usage: /ban <id>")
+    banned.add(tid)
+    await update.message.reply_text(f"✅ Banned {tid}")
 
-async def ban_user(update, context):
-    if not await admin_only(update, context): return
-    try:
-        uid = int(context.args[0])
-        banned.add(uid)
-        await update.message.reply_text(f"🚫 Banned {uid}")
-    except (IndexError, ValueError):
-        await update.message.reply_text("Usage: /ban <userid>")
+async def unban_cmd(update, context):
+    if not is_admin(update.effective_user.id):
+        return await update.message.reply_text("⛔ Admins only")
+    tid = int(context.args[0])
+    banned.discard(tid)
+    await update.message.reply_text(f"✅ Unbanned {tid}")
 
-async def unban_user(update, context):
-    if not await admin_only(update, context): return
-    try:
-        uid = int(context.args[0])
-        banned.discard(uid)
-        await update.message.reply_text(f"✅ Unbanned {uid}")
-    except (IndexError, ValueError):
-        await update.message.reply_text("Usage: /unban <userid>")
+async def admin_panel_cb(update, context):
+    q = update.callback_query
+    if not is_admin(q.from_user.id):
+        return await q.answer("⛔ Admins only")
+    await q.message.reply_text(
+        f"🛡️ Admin\nActive: {len(users)} users · {len(pending)} searching\n"
+        f"Commands:\n/ban <id>  /unban <id>")
 
-async def broadcast(update, context):
-    if not await admin_only(update, context): return
-    text = " ".join(context.args)
-    if not text:
-        return await update.message.reply_text("Usage: /broadcast <message>")
-    ok = 0
-    for uid in list(users):
-        try:
-            await context.bot.send_message(uid, f"📢 {text}")
-            ok += 1
-        except Exception:
-            pass
-    await update.message.reply_text(f"📢 Sent to {ok}/{len(users)} users")
-
-async def wipe_all(update, context):
-    if not await admin_only(update, context): return
-    if "confirm" not in context.args:
-        return await update.message.reply_text("⚠️ Confirm: /wipe confirm")
-    users.clear()
-    matches.clear()
-    chats.clear()
-    pending.clear()
-    banned.clear()
-    await update.message.reply_text("🗑️ All data wiped")
+def main_cb(update, context):
+    q = update.callback_query
+    if q.data == "find":
+        return await find_cb(update, context)
+    if q.data == "admin_panel":
+        return await admin_panel_cb(update, context)
+    return await reply_cb(update, context)
 
 def main():
     app = Application.builder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("stats", stats))
-    app.add_handler(CommandHandler("all_users", all_users))
-    app.add_handler(CommandHandler("history", history))
-    app.add_handler(CommandHandler("ban", ban_user))
-    app.add_handler(CommandHandler("unban", unban_user))
-    app.add_handler(CommandHandler("broadcast", broadcast))
-    app.add_handler(CommandHandler("wipe", wipe_all))
-    app.add_handler(CallbackQueryHandler(find, pattern="^find$"))
-    app.add_handler(CallbackQueryHandler(chat_start, pattern="^msg_|^end_"))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, route_msg))
+    app.add_handler(CommandHandler("start", start_cmd))
+    app.add_handler(CommandHandler("ban", ban_cmd))
+    app.add_handler(CommandHandler("unban", unban_cmd))
+    app.add_handler(CallbackQueryHandler(main_cb))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
     app.run_polling()
-
-async def main():
-    app = Application.builder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(find, pattern="^find$"))
-    app.add_handler(CallbackQueryHandler(chat_start, pattern="^msg_"))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, route_msg))
-    await app.initialize()
-    await app.start()
-    await app.updater.start_polling()
-    await asyncio.Event().wait()
+    logger.info("Bot started")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
