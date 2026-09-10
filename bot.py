@@ -96,7 +96,7 @@ async def main_cb(update, context):
     if q.data == "find": return await find_cb(update, context)
     if q.data == "admin_panel": return await admin_panel_cb(update, context)
     return await reply_cb(update, context)
-def main():
+async def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start_cmd))
     app.add_handler(CallbackQueryHandler(main_cb))
