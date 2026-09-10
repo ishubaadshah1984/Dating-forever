@@ -161,9 +161,6 @@ def main():
     app.add_handler(CommandHandler("unban", unban_cmd))
     app.add_handler(CallbackQueryHandler(main_cb))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
-    
-async def main():
-    await app.run_polling()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
