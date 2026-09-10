@@ -79,8 +79,9 @@ async def find_cb(update, context):
     pending.append(uid); await q.answer("Searching… 🌊"); await try_match(context)
 
 async def update_msg(update, context):
-  uid = update.effective_user.id
-    if uid in banned: return await update.message.reply_text("🚫 You are banned.")
+    uid = update.effective_user.id
+    if uid in banned:
+        return await update.message.reply_text("🚫 You are banned.")
     if URL_PATTERN.search(update.message.text):
         return await update.message.reply_text("Links not allowed 🔒")
     parts = update.message.text.split()
@@ -90,7 +91,6 @@ async def update_msg(update, context):
         await context.bot.send_message(matches[uid]["other"], f"💬 {update.message.text}")
     else:
         await update.message.reply_text("No active chat — tap 🔍 Find partner")
-
 async def reply_cb(update, context):
     q = update.callback_query; uid = q.from_user.id
     partner = int(q.data.split("_")[1])
