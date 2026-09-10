@@ -7,7 +7,7 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Mess
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = "8763867582:AAHprPhPZHc2GfzsH2_GAemnUZkXlI3I62Q"
 ADMIN_ID = int(os.getenv("ADMIN_ID", 6205405530))
 
 users = {}
