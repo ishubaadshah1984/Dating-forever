@@ -101,7 +101,7 @@ async def admin_panel_cb(update, context):
     await q.edit_message_text(f"Admin panel — {len(users)} users, {len(matches)} chats",
                               reply_markup=InlineKeyboardMarkup(kb))
   
-async main_cb(update, context):
+async def main_cb(update, context):
     q = update.callback_query
     if q.data == "find": return await find_cb(update, context)
     if q.data == "admin_panel": return await admin_panel_cb(update, context)
