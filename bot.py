@@ -106,6 +106,7 @@ async def country_cb(update, context):
     await q.message.edit_text(
         f"✅ Country saved: {country}\nSend your bio (any text) or tap Find partner.",
         reply_markup=InlineKeyboardMarkup(kb))
+  
 async def find_cb(update, context):
     q = update.callback_query; uid = q.from_user.id
     if uid in banned: return await q.answer("🚫 Banned")
