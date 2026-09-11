@@ -181,6 +181,13 @@ async def main_cb(update, context):
     if q.data == "banned_list": return await banned_cb(update, context)
     return await reply_cb(update, context)
 
+class HealthCheck(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+    def log_message(self, *args):
+        pass
+
 def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start_cmd))
@@ -194,4 +201,10 @@ def main():
     app.run_polling()
 
 if __name__ == "__main__":
+    threading.Thread(
+        target=lambda: HTTPServer(
+            ("0.0.0.0", int(os.getenv("PORT", 10000))), HealthCheck
+        ).serve_forever(),
+        daemon=True,
+    ).start()
     main()
