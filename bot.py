@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 TOKEN = os.getenv("TOKEN")
-ADMIN_ID = int(os.getenv("ADMIN_ID", "620540494"))
+ADMIN_ID = int(os.getenv("ADMIN_ID", "6205405530"))
 
 users = {}
 matches = {}
