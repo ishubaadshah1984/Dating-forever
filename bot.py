@@ -1,4 +1,4 @@
-import asyncio
+import asyncio, json
 from telegram import BotCommand
 import logging, os, re
 import threading
@@ -7,12 +7,34 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, MessageHandler, filters
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(name)
 
 TOKEN = os.getenv("TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "6205405530"))
 
+DATA_FILE = "users.json"
+
+def load_users():
+    global users
+    try:
+        if os.path.exists(DATA_FILE):
+            with open(DATA_FILE, "r") as f:
+                users = json.load(f)
+        else:
+            users = {}
+    except Exception as e:
+        print("load_users failed:", e)
+        users = {}
+
+def save_users():
+    try:
+        with open(DATA_FILE, "w") as f:
+            json.dump(users, f, ensure_ascii=False)
+    except Exception as e:
+        print("save_users failed:", e)
+
 users = {}
+load_users()
 matches = {}
 pending = []
 banned = set()
