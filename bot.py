@@ -30,11 +30,18 @@ def anon_name(uid):
 def is_admin(uid): return uid == ADMIN_ID
 
 def reg_user(u):
-    users.setdefault(u.id, {"name": u.first_name or u.username or "User",
-        "anon": anon_name(u.id), "age": None, "country": None, "bio": None,
-        "username": u.username or "", "date": None})
-
-def profile_text(uid):
+    if not users.get(u.id):
+        users[u.id] = {
+            "name": u.first_name or u.username or "User",
+            "anon": anon_name(u.id),
+            "age": None,
+            "country": None,
+            "bio": None,
+            "username": u.username or "",
+            "date": datetime.now().isoformat(),
+        }
+        save_users()          # persist to disk
+    return users[u.id]'date'e' profile_text(uid):
     p = users[uid]
     info = f"{p['anon']}"
     if p['age']: info += f" · {p['age']}"
