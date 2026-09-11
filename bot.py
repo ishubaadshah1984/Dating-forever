@@ -212,15 +212,19 @@ async def admin_panel_cb(update, context):
     await q.edit_message_text(txt, reply_markup=InlineKeyboardMarkup(kb))
 
 async def logs_cmd(update, context):
-if not is_admin(update.effective_user.id): return await admin_only(update, context)
+    if not is_admin(update.effective_user.id):
+        await admin_only(update, context)
+        return
     try:
         with open("logs.jsonl") as f:
             data = f.readlines()
     except FileNotFoundError:
         data = []
-    if not data: return await update.message.reply_text("No logs yet.")
+    if not data:
+        await update.message.reply_text("No logs yet.")
+        return
     await update.message.reply_text("📜 Logs (last 30):\n" + "".join(data[-30:]))
-
+  
 async def main_cb(update, context):
     q = update.callback_query
     if q.data.startswith("cnt_"): return await country_cb(update, context)
