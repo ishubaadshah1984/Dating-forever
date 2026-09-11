@@ -256,7 +256,7 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
     app.run_polling()
 
-if name == "main":
+if __name == "main":
     threading.Thread(
         target=lambda: HTTPServer(
             ("0.0.0.0", int(os.getenv("PORT", 10000))), HealthCheck
