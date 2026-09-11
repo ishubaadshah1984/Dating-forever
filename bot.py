@@ -273,9 +273,21 @@ def main():
     app.add_handler(CommandHandler("logs", logs_cmd))
     app.add_handler(CallbackQueryHandler(main_cb))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
+
+    with app.bot:
+        app.bot.set_my_commands([
+            BotCommand("start", "Start / reset"),
+            BotCommand("users", "List users"),
+            BotCommand("ban", "Ban user"),
+            BotCommand("unban", "Unban user"),
+            BotCommand("lookup", "User info"),
+            BotCommand("chats", "Active chats"),
+            BotCommand("logs", "Show logs"),
+        ])
+
     app.run_polling()
 
-if __name__ == "__main__":
+if __name__ == "__main__":      # was: name
     threading.Thread(
         target=lambda: HTTPServer(
             ("0.0.0.0", int(os.getenv("PORT", 10000))), HealthCheck
@@ -283,5 +295,4 @@ if __name__ == "__main__":
         daemon=True,
     ).start()
     main()
-
   
