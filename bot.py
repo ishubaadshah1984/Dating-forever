@@ -1,6 +1,3 @@
-Here's the merged, working bot.py — paste it wholesale. Bug fixed (__name__, orphan await, syntax errors all caught).
-
-```python
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
 import os
