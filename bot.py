@@ -189,10 +189,25 @@ async def stats_cb(update, context):
 
 async def chats_cb(update, context):
     q = update.callback_query
-    if not is_admin(q.from_user.id): return await q.answer("Not allowed", show_alert=True)
-    if not matches: return await q.answer("No active chats", show_alert=True)
-    lines = [f"{users[uid]['anon']} <-> {users[m['other']]['anon']}" for uid, m in matches.items()]
-    await q.message.reply_text("🗣 Active chats\n" + "\n".join(lines))
+    if not is_admin(q.from_user.id):
+        await q.answer("Not allowed", show_alert=True)
+        return
+    if not matches:
+        await q.answer("No active chats", show_alert=True)
+        return
+    try:
+        with open("logs.jsonl") as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        lines = []
+    q.answer()
+    for a, m in matches.items():
+        b = m["other"]
+        rows = [l for l in lines
+                if f'"from": {a}' in l or f'"from": {b}' in l]
+        head = f"🗣 {users[a]['anon']} <-> {users[b]['anon']}"
+        body = "".join(rows)[-1500:] or "no messages"
+        await q.message.reply_text(f"{head}\n{body}")
 
 async def banned_cb(update, context):
     q = update.callback_query
