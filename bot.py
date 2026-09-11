@@ -52,7 +52,7 @@ def anon_name(uid):
 def is_admin(uid): return uid == ADMIN_ID
 
 def reg_user(u):
-    if not users.get(u.id):
+    if u.id not in users or not isinstance(users[u.id], dict) or not users[u.id]:
         users[u.id] = {
             "name": u.first_name or u.username or "User",
             "anon": anon_name(u.id),
@@ -60,18 +60,18 @@ def reg_user(u):
             "country": None,
             "bio": None,
             "username": u.username or "",
-            "date": datetime.now().isoformat(),
+            "date": datetime.datetime.now().isoformat(),
         }
-        save_users()          # persist to disk
-    return users[u.id]'date'e' profile_text(uid):
+    save_users()
+    return users[u.id]
+
+def profile_text(uid):
     p = users[uid]
     info = f"{p['anon']}"
     if p['age']: info += f" · {p['age']}"
     if p['country']: info += f" · {p['country']}"
     if p['bio']: info += f"\n💬 \"{p['bio']}\""
-    return info
-
-def profile_full(uid):
+    return InlineKeyboardButton(uid):
     p = users[uid]
     s = f"{p['anon']}  ·  registered {p['date'] or 'unknown'}"
     if p['age']: s += f" · {p['age']}"
