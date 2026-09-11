@@ -184,12 +184,22 @@ async def admin_only(update, context):
     await update.message.reply_text("⛔ Admins only.")
 
 async def users_cmd(update, context):
-    if not is_admin(update.effective_user.id): return await admin_only(update, context)
-    if not users: return await update.message.reply_text("No users yet.")
-    lines = [f"{uid} · {profile_text(uid)}" for uid in users]
+    if not is_admin(update.effective_user.id):
+        return await admin_only(update, context)
+    if not users:
+        return await update.message.reply_text("No users yet.")
+
+    lines = []
+    for uid, rec in list(users.items()):
+        if not rec or not rec.get("name"):
+            continue                     # skip empty/broken records
+        lines.append(f"{uid} · {profile_text(uid)}")
+
+    if not lines:
+        return await update.message.reply_text("No users yet.")
+
     for i in range(0, len(lines), 20):
         await update.message.reply_text("\n".join(lines[i:i+20]))
-
 async def ban_cmd(update, context):
     if not is_admin(update.effective_user.id): return await admin_only(update, context)
     if not context.args: return await update.message.reply_text("Usage: /ban <id>")
