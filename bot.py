@@ -1,3 +1,6 @@
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import threading
+import os
 import logging, os, re
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
