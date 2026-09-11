@@ -1,4 +1,4 @@
-
+from telegram import BotCommand
 import logging, os, re
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
