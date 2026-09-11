@@ -93,14 +93,18 @@ async def set_profile(update, context):
     await update.message.reply_text(f"✅ Profile complete!\n{profile_text(u.id)}", reply_markup=InlineKeyboardMarkup(kb))
 
 async def country_cb(update, context):
-    q = update.callback_query; uid = q.from_user.id; reg_user(q.from_user)
+    q = update.callback_query
+    uid = q.from_user.id
+    reg_user(q.from_user)
     country = q.data.split("_", 1)[1]
     users[uid]["country"] = country
     await q.answer(f"Country set: {country}")
     kb = [[InlineKeyboardButton("🔍 Find partner", callback_data="find")]]
-    if is_admin(uid): kb.append([InlineKeyboardButton("🛡️ Admin", callback_data="admin_panel")])
-    await q.message.edit_text(f"✅ Country saved: {country}\nSend your bio (any text) or tap Find partner.", reply_markup=InlineKeyboardMarkup(kb))
-
+    if is_admin(uid):
+        kb.append([InlineKeyboardButton("🛡️ Admin", callback_data="admin_panel")])
+    await q.message.edit_text(
+        f"✅ Country saved: {country}\nSend your bio (any text) or tap Find partner.",
+        reply_markup=InlineKeyboardMarkup(kb))
 async def find_cb(update, context):
     q = update.callback_query; uid = q.from_user.id
     if uid in banned: return await q.answer("🚫 Banned")
