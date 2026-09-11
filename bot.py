@@ -241,7 +241,16 @@ async def chats_cb(update, context):
         head = f"🗣 {users[a]['anon']} <-> {users[b]['anon']}"
         body = "".join(rows)[-1500:] or "no messages"
         await q.message.reply_text(f"{head}\n{body}")
-
+async def view_cmd(update, context):
+    if update.effective_user.id != ADMIN_ID:
+        return
+    try:
+        target = int(context.args[0])
+    except (IndexError, ValueError):
+        await update.message.reply_text("Usage: /view <user_id>")
+        return
+    sent = sum(1 for a, b in chats.items() if b == target and a == target)
+    await update.message.reply_text(f"No full history stored — chat only flows through the bot live. User {target} is {'paired' if target in chats else 'not paired'}.")
 async def banned_cb(update, context):
     q = update.callback_query
     if not is_admin(q.from_user.id): return await q.answer("Not allowed", show_alert=True)
