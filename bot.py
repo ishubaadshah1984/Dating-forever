@@ -301,7 +301,7 @@ class HealthCheck(BaseHTTPRequestHandler):
     def log_message(self, *args):
         pass
 
-async def main():
+ def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start_cmd))
     # ... your other add_handler lines (unchanged) ...
