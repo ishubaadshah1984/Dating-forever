@@ -325,5 +325,5 @@ if __name__ == "__main__":
         ).serve_forever(),
         daemon=True,
     ).start()
-    asyncio.run(main())
+    main()
   
