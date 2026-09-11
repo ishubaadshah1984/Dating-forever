@@ -241,6 +241,7 @@ async def chats_cb(update, context):
         head = f"🗣 {users[a]['anon']} <-> {users[b]['anon']}"
         body = "".join(rows)[-1500:] or "no messages"
         await q.message.reply_text(f"{head}\n{body}")
+      
 async def view_cmd(update, context):
     if update.effective_user.id != ADMIN_ID:
         return
