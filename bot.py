@@ -1,6 +1,4 @@
-Full corrected file — no errors. Paste everything below, top to bottom into bot.py:
 
-```python
 import logging, os, re
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
