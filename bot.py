@@ -83,7 +83,7 @@ async def set_age(update, context):
     await update.message.reply_text("✅ Age saved! Now choose your country:", reply_markup=country_keyboard())
 
 async def set_profile(update, context):
-    u = update.effective_user; reg_user(u)
+    udefupdate.effective_user; reg_user(u)
     if not users[u.id].get("age"):
         await set_age(update, context); return
     if not users[u.id].get("country"):
@@ -303,10 +303,20 @@ class HealthCheck(BaseHTTPRequestHandler):
 
  def main():
     app = Application.builder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start_cmd))
-    # ... your other add_handler lines (unchanged) ...
 
-    await app.bot.set_my_commands([
+    app.add_handler(CommandHandler("start", start_cmd))
+    app.add_handler(CommandHandler("users", users_cmd))
+    app.add_handler(CommandHandler("ban", ban_cmd))
+    app.add_handler(CommandHandler("unban", unban_cmd))
+    app.add_handler(CommandHandler("lookup", lookup_cmd))
+    app.add_handler(CommandHandler("chats", chats_cmd))
+    app.add_handler(CommandHandler("logs", logs_cmd))
+    app.add_handler(CommandHandler("view", view_cmd))
+
+    app.add_handler(CallbackQueryHandler(main_cb))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
+
+    app.bot.set_my_commands([
         BotCommand("start", "Start / reset"),
         BotCommand("users", "List users"),
         BotCommand("ban", "Ban user"),
@@ -314,6 +324,7 @@ class HealthCheck(BaseHTTPRequestHandler):
         BotCommand("lookup", "User info"),
         BotCommand("chats", "Active chats"),
         BotCommand("logs", "Show logs"),
+        BotCommand("view", "View user"),
     ])
 
     app.run_polling()
@@ -326,4 +337,3 @@ if __name__ == "__main__":
         daemon=True,
     ).start()
     main()
-  
