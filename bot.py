@@ -211,6 +211,3 @@ if __name__ == "__main__":
         daemon=True,
     ).start()
     main()
-```
-
-Copy-paste that whole thing into bot.py. Done — the conflicts should be gone and Render stays green.
