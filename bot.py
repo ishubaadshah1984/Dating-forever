@@ -262,37 +262,32 @@ class HealthCheck(BaseHTTPRequestHandler):
     def log_message(self, *args):
         pass
 
-def main():
+import asyncio
+from telegram import BotCommand   # add at top
+
+async def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start_cmd))
-    app.add_handler(CommandHandler("users", users_cmd))
-    app.add_handler(CommandHandler("ban", ban_cmd))
-    app.add_handler(CommandHandler("unban", unban_cmd))
-    app.add_handler(CommandHandler("lookup", lookup_cmd))
-    app.add_handler(CommandHandler("chats", chats_cmd))
-    app.add_handler(CommandHandler("logs", logs_cmd))
-    app.add_handler(CallbackQueryHandler(main_cb))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
+    # ... your other add_handler lines (unchanged) ...
 
-    with app.bot:
-        app.bot.set_my_commands([
-            BotCommand("start", "Start / reset"),
-            BotCommand("users", "List users"),
-            BotCommand("ban", "Ban user"),
-            BotCommand("unban", "Unban user"),
-            BotCommand("lookup", "User info"),
-            BotCommand("chats", "Active chats"),
-            BotCommand("logs", "Show logs"),
-        ])
+    await app.bot.set_my_commands([
+        BotCommand("start", "Start / reset"),
+        BotCommand("users", "List users"),
+        BotCommand("ban", "Ban user"),
+        BotCommand("unban", "Unban user"),
+        BotCommand("lookup", "User info"),
+        BotCommand("chats", "Active chats"),
+        BotCommand("logs", "Show logs"),
+    ])
 
     app.run_polling()
 
-if __name__ == "__main__":      # was: name
+if __name__ == "__main__":
     threading.Thread(
         target=lambda: HTTPServer(
             ("0.0.0.0", int(os.getenv("PORT", 10000))), HealthCheck
         ).serve_forever(),
         daemon=True,
     ).start()
-    main()
+    asyncio.run(main())
   
