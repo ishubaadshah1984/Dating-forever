@@ -382,11 +382,11 @@ async def main_cb(update, context):
 
 def admin_panel(update, context):
     uid = update.effective_user.id
-    if uid not in ADMIN_IDS:
+    if not is_admin(uid):
         update.message.reply_text("⛔ Not authorized.")
         return
-    kb = [...]
-    update.message.reply_text(...)
+    kb = [[InlineKeyboardButton("🛡️ Open Panel", callback_data="admin_panel")]]
+    update.message.reply_text("🔧 Admin menu", reply_markup=InlineKeyboardMarkup(kb))
 
 class HealthCheck(BaseHTTPRequestHandler):
     def do_GET(self):
