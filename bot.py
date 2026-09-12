@@ -172,7 +172,7 @@ async def update_msg(update, context):
             elif msg.video:
                 await context.bot.send_video(partner_id, msg.video.file_id, caption=msg.caption or "")
             elif msg.document:
-            await context.bot.send_document(partner_id, msg.document.file_id, caption=msg.caption or "")
+                await context.bot.send_document(partner_id, msg.document.file_id, caption=msg.caption or "")
             elif msg.voice:
                 await context.bot.send_voice(partner_id, msg.voice.file_id)
             elif msg.audio:
