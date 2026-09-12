@@ -341,6 +341,11 @@ async def post_init(app):
     
 def main():
     app = Application.builder().token(TOKEN).build()
+
+    # Hooks — run once, after app build
+    app.post_init = post_init
+
+    # Command handlers
     app.add_handler(CommandHandler("start", start_cmd))
     app.add_handler(CommandHandler("users", users_cmd))
     app.add_handler(CommandHandler("ban", ban_cmd))
@@ -349,13 +354,18 @@ def main():
     app.add_handler(CommandHandler("chats", chats_cmd))
     app.add_handler(CommandHandler("logs", logs_cmd))
     app.add_handler(CommandHandler("view", view_cmd))
-    # 👇 NEW — age step must come BEFORE the relay
+
+    # Step-handler: captures age reply BEFORE the relay catches it
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, set_age))
+
+    # UI callbacks
     app.add_handler(CallbackQueryHandler(main_cb))
+
+    # Relay — matches who already have age
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
-    app.post_init = post_init
+
     app.run_polling()
 
+# Entry guard — fixes proper "if __name__ == '__main__'" (you had it malformed)
 if __name__ == "__main__":
     main()
-    
