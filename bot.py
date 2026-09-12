@@ -334,7 +334,6 @@ async def post_init(app):
     
 def main():
     app = Application.builder().token(TOKEN).build()
-
     app.add_handler(CommandHandler("start", start_cmd))
     app.add_handler(CommandHandler("users", users_cmd))
     app.add_handler(CommandHandler("ban", ban_cmd))
@@ -343,10 +342,11 @@ def main():
     app.add_handler(CommandHandler("chats", chats_cmd))
     app.add_handler(CommandHandler("logs", logs_cmd))
     app.add_handler(CommandHandler("view", view_cmd))
-
     app.add_handler(CallbackQueryHandler(main_cb))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
-
-    app.post_init = post_init   # runs before polling starts
+    app.post_init = post_init
     app.run_polling()
+
+if __name__ == "__main__":
+    main()
     
