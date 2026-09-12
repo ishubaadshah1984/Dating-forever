@@ -419,11 +419,10 @@ def main():
     # UI callbacks
     app.add_handler(CallbackQueryHandler(main_cb))
 
-    # ONE text handler — routes by user state (age / country / chat)
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, set_age))
+    # ALL message types — text, photo, video, document, voice, audio, sticker
+    app.add_handler(MessageHandler(filters.ALL & ~filters.COMMAND, set_age))
 
     app.run_polling()
 
-# Entry guard
 if __name__ == "__main__":
     main()
