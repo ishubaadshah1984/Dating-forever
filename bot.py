@@ -260,6 +260,61 @@ async def reply_cb(update, context):
         return
     await q.answer("Unknown action")
 
+async def reaction_cb(update, context):
+    ur = update.message_reaction
+    if not ur:
+        return
+    uid = ur.user.id
+    if uid in banned:
+        return
+    partner = chats.get(uid)
+    if not partner or chats.get(partner) != uid:
+        return
+
+    msg_kind = "message"
+    src = ur.message
+    if src:
+        if src.photo:
+            msg_kind = "photo"
+        elif src.video:
+            msg_kind = "video"
+        elif src.document:
+            msg_kind = "file"
+        elif src.audio:
+            msg_kind = "audio"
+        elif src.voice:
+            msg_kind = "voice"
+        elif src.sticker:
+            msg_kind = "sticker"
+        elif src.animation:
+            msg_kind = "gif"
+        elif src.video_note:
+            msg_kind = "video note"
+        elif src.text:
+            msg_kind = "text"
+        elif src.poll:
+            msg_kind = "poll"
+        elif src.contact:
+            msg_kind = "contact"
+        elif src.location:
+            msg_kind = "location"
+
+    if ur.new_reaction:
+        emoji = ur.new_reaction[0].emoji
+        try:
+            await context.bot.send_message(
+                partner, f"Reacted {emoji} on your {msg_kind}")
+        except Exception as e:
+            print(f"REACTION SEND FAILED: {e}")
+
+    if ur.old_reaction and not ur.new_reaction:
+        emoji = ur.old_reaction[0].emoji
+        try:
+            await context.bot.send_message(
+                partner, f"Removed {emoji} on your {msg_kind}")
+        except Exception as e:
+            print(f"REACTION SEND FAILED: {e}")
+
 async def admin_only(update, context):
     await update.message.reply_text("⛔ Admins only.")
 
