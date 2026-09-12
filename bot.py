@@ -25,17 +25,6 @@ def load_users():
     except Exception as e:
         print("load_users failed:", e)
         users = {}
-
-    # Purge poison self-pairs from previous bad runs
-    if users:
-        removed = 0
-        for uid, data in list(users.items()):
-            if "partner" in data:
-                if data["partner"] == uid or data["partner"] not in users:
-                    data.pop("partner")
-                    removed += 1
-    print(f"Purged {removed} bad partner links")
-
 def save_users():
     try:
         with open(DATA_FILE, "w") as f:
