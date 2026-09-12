@@ -338,16 +338,19 @@ async def banned_cb(update, context):
     await q.answer()
     await q.message.reply_text("🚫 Banned IDs:\n" + "\n".join(str(b) for b in banned))
 
-async def admin_panel_cb(update, context):
+def admin_panel_cb(update, context):
     q = update.callback_query
-    if not is_admin(q.from_user.id): return await q.answer("Not allowed", show_alert=True)
+    if not is_admin(q.from_user.id):
+        return q.answer("Not allowed", show_alert=True)
     txt = (f"🛡️ Admin panel\n"
-           f"👥 Users: {len(users)} · 💬 Chats: {len(matches)} · 🚫 Banned: {len(banned)}\n\n"
-           f"/ban &lt;id&gt; · /unban &lt;id&gt; · /lookup &lt;id&gt; · /chats · /users")
-    kb = [[InlineKeyboardButton("👥 Users", callback_data="stats"),
-           InlineKeyboardButton("🗣 Chats", callback_data="chats"),
-           InlineKeyboardButton("🚫 Banned", callback_data="banned_list")]]
-    await q.edit_message_text(txt, reply_markup=InlineKeyboardMarkup(kb))
+           f"👥 Users: {len(users)} · 💬 Chats: {len(chats)} · 🚫 Banned: {len(banned)}\n\n"
+           f"Commands: /ban &lt;id&gt; · /unban &lt;id&gt; · /lookup &lt;id&gt; · /chats · /users")
+    kb = [
+        [InlineKeyboardButton("📊 Stats", callback_data="stats"),
+         InlineKeyboardButton("💬 Chats", callback_data="chats"),
+         InlineKeyboardButton("🚫 Banned", callback_data="banned_list")]
+    ]
+    q.edit_message_text(txt, reply_markup=InlineKeyboardMarkup(kb))
 
 async def logs_cmd(update, context):
     if not is_admin(update.effective_user.id):
