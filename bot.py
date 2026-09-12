@@ -118,11 +118,10 @@ async def set_age(update, context):
     if uid not in users:
         users[uid] = {"uid": uid, "name": u.first_name, "anon": f"Stranger{uid % 10000}", "age": None, "bio": ""}
 
-    # MATCHED / ALREADY-SET USERS -> return immediately, never touch update.message
+    # MATCHED / ALREADY-SET USERS -> return immediately
     if users[uid].get("age"):
         return
 
-    # Only NEW users land here
     text = update.message.text
     try:
         age = int(text)
@@ -134,8 +133,12 @@ async def set_age(update, context):
         return
 
     users[uid]["age"] = age
+    pending.append(uid)                      # ← ADD TO QUEUE
     await update.message.reply_text(f"Age set to {age}! Sending you to the queue now...")
-    
+    try:
+        await try_match(context)             # ← TRIGGER MATCHING
+    except Exception as e:
+        print(f"match error: {e}")
 async def set_profile(update, context):
     u = update.effective_user; reg_user(u)
     if not users[u.id].get("age"):
