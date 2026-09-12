@@ -1,6 +1,4 @@
-Here's the complete, deployable file. Paste it top to bottom, replacing everything.
 
-```python
 import asyncio, json
 from telegram import BotCommand
 import logging, os, re, datetime
