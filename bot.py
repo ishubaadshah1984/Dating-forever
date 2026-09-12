@@ -101,7 +101,6 @@ def country_keyboard():
     return InlineKeyboardMarkup(kb)
 
 async def try_match(context):
-async def try_match(context):
     while len(pending) >= 2:
         a = pending.pop(0)
         if not pending:
@@ -260,6 +259,7 @@ async def update_msg(update, context):
         print(f"DELIVERED to {partner_id}")
     except Exception as e:
         print(f"SEND FAILED to {partner_id}: {type(e).__name__}: {e}")
+        
 async def reply_cb(update, context):
     q = update.callback_query; uid = q.from_user.id
     if q.data.startswith("msg_"):
