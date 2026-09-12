@@ -349,6 +349,8 @@ def main():
     app.add_handler(CommandHandler("chats", chats_cmd))
     app.add_handler(CommandHandler("logs", logs_cmd))
     app.add_handler(CommandHandler("view", view_cmd))
+    # 👇 NEW — age step must come BEFORE the relay
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, set_age))
     app.add_handler(CallbackQueryHandler(main_cb))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
     app.post_init = post_init
