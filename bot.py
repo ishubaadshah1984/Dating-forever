@@ -117,7 +117,10 @@ async def start_cmd(update, context):
     await update.message.reply_text(f"Welcome back {u.first_name}!", reply_markup=InlineKeyboardMarkup(kb))
     
 async def set_age(update, context):
+async def set_age(update, context):
     msg = update.message
+    if msg is None or msg.from_user is None:
+        return
     u = msg.from_user
     uid = u.id
     if uid not in users:
@@ -132,7 +135,7 @@ async def set_age(update, context):
 
     # Registration flow — only capture age from TEXT
     if not users[uid].get("age"):
-        if not msg.text:          # media during age step
+        if not msg.text:
             await msg.reply_text("Please send your age as a number:")
             return
         try:
@@ -148,7 +151,6 @@ async def set_age(update, context):
         await msg.reply_text(f"✅ Age saved: {age}\nNow pick your country:",
                              reply_markup=country_keyboard())
         return
-    ...
     
 async def set_profile(update, context):
     u = update.effective_user; reg_user(u)
