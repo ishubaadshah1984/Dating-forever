@@ -39,7 +39,7 @@ matches = {}
 chats = {}
 pending = []
 banned = set()
-URL_PATTERN = import("re").compile(r'https?://\S+|www\.\S+')
+URL_PATTERN = re.compile(r'https?://\S+|www\.\S+')
 LOG_FILE = "logs.jsonl"
 
 COUNTRIES = ["🇮🇳 India", "🇵🇰 Pakistan", "🇺🇸 USA", "🇬🇧 UK", "🇺🇦 Ukraine",
