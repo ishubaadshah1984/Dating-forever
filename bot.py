@@ -1,13 +1,14 @@
 import asyncio, json
+import asyncio, json
 from telegram import BotCommand
-import logging, os, re
+import logging, os, re, datetime
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, MessageHandler, filters
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)
 
 TOKEN = os.getenv("TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "6205405530"))
@@ -64,7 +65,7 @@ def reg_user(u):
         }
     save_users()
     return users[u.id]
-
+    
 def profile_text(uid):
     p = users[uid]
     info = f"{p['anon']}"
