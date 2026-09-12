@@ -386,10 +386,10 @@ async def main_cb(update, context):
 async def admin_panel(update, context):
     uid = update.effective_user.id
     if not is_admin(uid):
-        update.message.reply_text("⛔ Not authorized.")
+        await update.message.reply_text("⛔ Not authorized.")
         return
     kb = [[InlineKeyboardButton("🛡️ Open Panel", callback_data="admin_panel")]]
-    update.message.reply_text("🔧 Admin menu", reply_markup=InlineKeyboardMarkup(kb))
+    await update.message.reply_text("🔧 Admin menu", reply_markup=InlineKeyboardMarkup(kb))
 
 class HealthCheck(BaseHTTPRequestHandler):
     def do_GET(self):
