@@ -348,7 +348,7 @@ def main():
 
     app.run_polling()
 
-if name == "main":
+if __name__ == "__main__":
     threading.Thread(
         target=lambda: HTTPServer(
             ("0.0.0.0", int(os.getenv("PORT", "10000"))), HealthCheck
