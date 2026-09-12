@@ -4,8 +4,7 @@ import logging, os, re, datetime
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CallbackQueryHandler, CommandHandler, MessageHandler, filters
-
+from telegram.ext import Application, CallbackQueryHandler, CommandHandler, MessageHandler, MessageReactionHandler, filters
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
