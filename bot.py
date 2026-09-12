@@ -433,7 +433,11 @@ def main():
     # ALL message types — text, photo, video, document, voice, audio, sticker
     app.add_handler(MessageHandler(filters.ALL & ~filters.COMMAND, set_age))
 
+    # <<<< ADD THIS — reaction relay
+    app.add_handler(MessageReactionHandler(reaction_cb))
+
     app.run_polling()
 
 if __name__ == "__main__":
     main()
+    
