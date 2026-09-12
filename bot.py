@@ -387,17 +387,17 @@ def main():
     app.add_handler(CommandHandler("logs", logs_cmd))
     app.add_handler(CommandHandler("view", view_cmd))
 
-    # Step-handler: captures age reply BEFORE the relay catches it
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, set_age))
-
     # UI callbacks
     app.add_handler(CallbackQueryHandler(main_cb))
 
-    # Relay — matches who already have age
+    # RELAY FIRST — catches all matched senders (fixes swallowing bug)
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
+
+    # Age-capture LAST — only new users (guard inside set_age returns for the rest)
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, set_age))
 
     app.run_polling()
 
-# Entry guard — fixes proper "if __name__ == '__main__'" (you had it malformed)
+# Entry guard — FIXED (was missing __)
 if __name__ == "__main__":
     main()
