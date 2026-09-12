@@ -111,20 +111,32 @@ async def start_cmd(update, context):
     kb = [[InlineKeyboardButton("🔍 Find partner", callback_data="find")]]
     if is_admin(u.id): kb.append([InlineKeyboardButton("🛡️ Admin", callback_data="admin_panel")])
     await update.message.reply_text(f"Welcome back {u.first_name}!", reply_markup=InlineKeyboardMarkup(kb))
+    
 async def set_age(update, context):
-    u = update.effective_user; reg_user(u)
-    if users[u.id].get("age"):
-        return  # already has age — let update_msg handle it
-    raw = update.message.text.strip()
-    if not raw.isdigit() or not (10 <= int(raw) <= 99):
-        await update.message.reply_text("⚠️ Please send a valid age (10–99).\nExample: 24")
+async def set_age(update, context):
+    u = update.effective_user
+    uid = u.id
+    if uid not in users:
+        users[uid] = {"uid": uid, "name": u.first_name, "anon": f"Stranger{uid % 10000}", "age": None, "bio": ""}
+
+    # MATCHED / ALREADY-SET USERS -> return immediately, never touch update.message
+    if users[uid].get("age"):
         return
-    users[u.id]["age"] = raw
-    save_users()
-    if not users[u.id].get("date"):
-        users[u.id]["date"] = str(update.message.date)
-        save_users()
-    await update.message.reply_text("✅ Age saved! Now choose your country:", reply_markup=country_keyboard())
+
+    # Only NEW users land here
+    text = update.message.text
+    try:
+        age = int(text)
+        if not (10 <= age <= 99):
+            await update.message.reply_text("Age must be 10–99. Try again:")
+            return
+    except ValueError:
+        await update.message.reply_text("Please send a number for your age:")
+        return
+
+    users[uid]["age"] = age
+    await update.message.reply_text(f"Age set to {age}! Sending you to the queue now...")
+    
 async def set_profile(update, context):
     u = update.effective_user; reg_user(u)
     if not users[u.id].get("age"):
