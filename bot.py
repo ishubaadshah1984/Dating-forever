@@ -380,6 +380,14 @@ async def main_cb(update, context):
     if q.data == "banned_list": return await banned_cb(update, context)
     return await reply_cb(update, context)
 
+def admin_panel(update, context):
+    uid = update.effective_user.id
+    if uid not in ADMIN_IDS:
+        update.message.reply_text("⛔ Not authorized.")
+        return
+    kb = [...]
+    update.message.reply_text(...)
+
 class HealthCheck(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
