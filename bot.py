@@ -426,7 +426,7 @@ def main():
     app.add_handler(CommandHandler("chats", chats_cmd))
     app.add_handler(CommandHandler("logs", logs_cmd))
     app.add_handler(CommandHandler("view", view_cmd))
-    app.add_handler(CommandHandler("admin", admin_panel))  # NEW admin panel command
+    app.add_handler(CommandHandler("admin", admin_panel))
 
     # UI callbacks
     app.add_handler(CallbackQueryHandler(main_cb))
