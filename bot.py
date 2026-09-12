@@ -320,6 +320,18 @@ class HealthCheck(BaseHTTPRequestHandler):
     def log_message(self, *args):
         pass
 
+async def post_init(app):
+    await app.bot.set_my_commands([
+        BotCommand("start", "Start / reset"),
+        BotCommand("users", "List users"),
+        BotCommand("ban", "Ban user"),
+        BotCommand("unban", "Unban user"),
+        BotCommand("lookup", "User info"),
+        BotCommand("chats", "Active chats"),
+        BotCommand("logs", "Show logs"),
+        BotCommand("view", "View user"),
+    ])
+
 def main():
     app = Application.builder().token(TOKEN).build()
 
@@ -335,24 +347,6 @@ def main():
     app.add_handler(CallbackQueryHandler(main_cb))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
 
-    asyncio.run(app.bot.set_my_commands([
-        BotCommand("start", "Start / reset"),
-        BotCommand("users", "List users"),
-        BotCommand("ban", "Ban user"),
-        BotCommand("unban", "Unban user"),
-        BotCommand("lookup", "User info"),
-        BotCommand("chats", "Active chats"),
-        BotCommand("logs", "Show logs"),
-        BotCommand("view", "View user"),
-    ]))
-
+    app.post_init = post_init   # runs before polling starts
     app.run_polling()
-
-if __name__ == "__main__":
-    threading.Thread(
-        target=lambda: HTTPServer(
-            ("0.0.0.0", int(os.getenv("PORT", "10000"))), HealthCheck
-        ).serve_forever(),
-        daemon=True,
-    ).start()
-    main()
+    
