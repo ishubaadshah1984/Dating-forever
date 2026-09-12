@@ -335,7 +335,7 @@ def main():
     app.add_handler(CallbackQueryHandler(main_cb))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
 
-    asyncio.run(app.set_my_commands([
+    asyncio.run(app.bot.set_my_commands([
         BotCommand("start", "Start / reset"),
         BotCommand("users", "List users"),
         BotCommand("ban", "Ban user"),
