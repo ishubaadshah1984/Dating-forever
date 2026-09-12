@@ -102,8 +102,14 @@ def country_keyboard():
 
 async def try_match(context):
     while len(pending) >= 2:
-        a = pending.pop(0); b = pending.pop(0)
-        if a in banned or b in banned: continue
+        a = pending.pop(0)
+        if not pending:
+            pending.insert(0, a)
+            break
+        b = pending.pop(0)
+        if a in banned or b in banned or a == b:
+            pending.insert(0, a)
+            continue
         chats[a] = b
         chats[b] = a
         matches[a] = {"other_anon": users[b]["anon"], "other": b}
