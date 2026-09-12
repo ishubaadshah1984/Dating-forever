@@ -101,6 +101,7 @@ def country_keyboard():
     return InlineKeyboardMarkup(kb)
 
 async def try_match(context):
+async def try_match(context):
     while len(pending) >= 2:
         a = pending.pop(0)
         if not pending:
