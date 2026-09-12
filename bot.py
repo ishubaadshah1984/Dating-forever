@@ -164,30 +164,62 @@ async def find_cb(update, context):
 
 async def update_msg(update, context):
     msg = update.message
-    if not msg: return
-    u = msg.from_user; uid = u.id
-    if uid in banned: return
-    await context.bot.forward_message(chat_id=ADMIN_ID, from_chat_id=msg.chat_id, message_id=msg.message_id)
-    partner_id = chats.get(uid)
-    if partner_id and chats.get(partner_id) == uid:
-        try:
-            if msg.text:
-                await context.bot.send_message(partner_id, msg.text)
-            elif msg.photo:
-                await context.bot.send_photo(partner_id, msg.photo[-1].file_id, caption=msg.caption or "")
-            elif msg.video:
-                await context.bot.send_video(partner_id, msg.video.file_id, caption=msg.caption or "")
-            elif msg.document:
-                await context.bot.send_document(partner_id, msg.document.file_id, caption=msg.caption or "")
-            elif msg.voice:
-                await context.bot.send_voice(partner_id, msg.voice.file_id)
-            elif msg.audio:
-                await context.bot.send_audio(partner_id, msg.audio.file_id)
-            elif msg.sticker:
-                await context.bot.send_sticker(partner_id, msg.sticker.file_id)
-        except Exception as e:
-            logger.error(f"Delivery failed: {e}")
+    if not msg:
+        return
+    u = msg.from_user
+    uid = u.id
+    if uid in banned:
+        return
 
+    # --- DEBUG LOGS (remove later) ---
+    print(f"RELAY fired: uid={uid}, partner={chats.get(uid)}")
+    # ----------------------------------
+
+    # Forward to admin for logging (wrapped in try so it never blocks the relay)
+    try:
+        await context.bot.forward_message(
+            chat_id=ADMIN_ID,
+            from_chat_id=msg.chat_id,
+            message_id=msg.message_id
+        )
+    except Exception as e:
+        print(f"ADMIN FORWARD failed: {e}")
+
+    partner_id = chats.get(uid)
+    if not partner_id or chats.get(partner_id) != uid:
+        print(f"NO PAIR: uid={uid}, partner_lookup={partner_id}")
+        return
+
+    try:
+        if msg.text:
+            await context.bot.send_message(partner_id, msg.text)
+        elif msg.photo:
+            await context.bot.send_photo(
+                partner_id,
+                msg.photo[-1].file_id,
+                caption=msg.caption or ""
+            )
+        elif msg.video:
+            await context.bot.send_video(
+                partner_id,
+                msg.video.file_id,
+                caption=msg.caption or ""
+            )
+        elif msg.document:
+            await context.bot.send_document(
+                partner_id,
+                msg.document.file_id,
+                caption=msg.caption or ""
+            )
+        elif msg.voice:
+            await context.bot.send_voice(partner_id, msg.voice.file_id)
+        elif msg.audio:
+            await context.bot.send_audio(partner_id, msg.audio.file_id)
+        elif msg.sticker:
+            await context.bot.send_sticker(partner_id, msg.sticker.file_id)
+        print(f"DELIVERED to {partner_id}")
+    except Exception as e:
+        print(f"SEND FAILED to {partner_id}: {type(e).__name__}: {e}")
 async def reply_cb(update, context):
     q = update.callback_query; uid = q.from_user.id
     if q.data.startswith("msg_"):
