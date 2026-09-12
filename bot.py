@@ -473,6 +473,7 @@ async def post_init(app):
     ])
     
 def main():
+def main():
     app = Application.builder().token(TOKEN).build()
 
     # Hooks — run once, after app build
@@ -493,7 +494,7 @@ def main():
     app.add_handler(CallbackQueryHandler(main_cb))
 
     # ALL message types — text, photo, video, document, voice, audio, sticker
-    # (skips reaction updates so set_age never crashes on them)
+    # (excludes reaction updates so set_age never crashes on them)
     app.add_handler(
         MessageHandler(
             filters.ALL & ~filters.COMMAND & ~filters.UpdateType.MESSAGE_REACTION,
@@ -502,8 +503,10 @@ def main():
     )
 
     # Reaction relay
-    if "reaction" in globals() or "reaction" in dir():
-        pass  # noop guard so nothing blocks startup if not defined yet
+    app.add_handler(MessageReactionHandler(reaction_cb))
 
-# EOF placeholder — rename to __main__ correctly:
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
     
