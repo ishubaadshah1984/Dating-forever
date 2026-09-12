@@ -117,18 +117,20 @@ async def set_age(update, context):
     u = msg.from_user
     uid = u.id
     if uid not in users:
-        users[uid] = { "name": u.first_name, "anon": anon_name(uid), "age": None,
-                       "country": None, "bio": None, "username": u.username or ""
-                     }
+        users[uid] = {"name": u.first_name, "anon": anon_name(uid), "age": None,
+                      "country": None, "bio": None, "username": u.username or ""}
     reg_user(u)
 
-    # Already fully registered + matched → relay to partner
+    # Fully registered + matched → relay ANY message type
     if uid in chats and users[uid].get("age") and users[uid].get("country"):
         await update_msg(update, context)
         return
 
-    # New user: capture age
+    # Registration flow — only capture age from TEXT
     if not users[uid].get("age"):
+        if not msg.text:          # media during age step
+            await msg.reply_text("Please send your age as a number:")
+            return
         try:
             age = int(msg.text)
         except ValueError:
@@ -142,19 +144,7 @@ async def set_age(update, context):
         await msg.reply_text(f"✅ Age saved: {age}\nNow pick your country:",
                              reply_markup=country_keyboard())
         return
-
-    # Has age but no country → show country picker
-    if not users[uid].get("country"):
-        await msg.reply_text("Pick your country:", reply_markup=country_keyboard())
-        return
-
-    # Has age + country → bio capture
-    users[uid]["bio"] = msg.text
-    save_users()
-    kb = [[InlineKeyboardButton("🔍 Find partner", callback_data="find")]]
-    if is_admin(uid): kb.append([InlineKeyboardButton("🛡️ Admin", callback_data="admin_panel")])
-    await msg.reply_text(f"✅ Profile complete!\n{profile_text(uid)}",
-                         reply_markup=InlineKeyboardMarkup(kb))
+    ...
     
 async def set_profile(update, context):
     u = update.effective_user; reg_user(u)
