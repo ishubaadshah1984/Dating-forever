@@ -101,7 +101,7 @@ async def try_match(context):
         kb = [[InlineKeyboardButton("✍️ Say hi", callback_data=f"msg_{b}")]]
         await context.bot.send_message(a, f"🎉 Matched with {users[b]['anon']}!\n{profile_text(b)}", reply_markup=InlineKeyboardMarkup(kb))
         kb2 = [[InlineKeyboardButton("✍️ Say hi", callback_data=f"msg_{a}")]]
-await context.bot.send_message(b, f"🎉 Matched with {users[a]['anon']}!\n{profile_text(a)}", reply_markup=InlineKeyboardMarkup(kb2))
+        await context.bot.send_message(b, f"🎉 Matched with {users[a]['anon']}!\n{profile_text(a)}", reply_markup=InlineKeyboardMarkup(kb2))
 
 async def start_cmd(update, context):
     u = update.effective_user; reg_user(u)
@@ -111,7 +111,6 @@ async def start_cmd(update, context):
     kb = [[InlineKeyboardButton("🔍 Find partner", callback_data="find")]]
     if is_admin(u.id): kb.append([InlineKeyboardButton("🛡️ Admin", callback_data="admin_panel")])
     await update.message.reply_text(f"Welcome back {u.first_name}!", reply_markup=InlineKeyboardMarkup(kb))
-
 async def set_age(update, context):
     u = update.effective_user; reg_user(u)
     users[u.id]["age"] = update.message.text.strip()
