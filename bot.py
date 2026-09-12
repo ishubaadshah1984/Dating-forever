@@ -113,11 +113,18 @@ async def start_cmd(update, context):
     await update.message.reply_text(f"Welcome back {u.first_name}!", reply_markup=InlineKeyboardMarkup(kb))
 async def set_age(update, context):
     u = update.effective_user; reg_user(u)
-    users[u.id]["age"] = update.message.text.strip()
+    if users[u.id].get("age"):
+        return  # already has age — let update_msg handle it
+    raw = update.message.text.strip()
+    if not raw.isdigit() or not (10 <= int(raw) <= 99):
+        await update.message.reply_text("⚠️ Please send a valid age (10–99).\nExample: 24")
+        return
+    users[u.id]["age"] = raw
     save_users()
-    if not users[u.id].get("date"): users[u.id]["date"] = str(update.message.date)
+    if not users[u.id].get("date"):
+        users[u.id]["date"] = str(update.message.date)
+        save_users()
     await update.message.reply_text("✅ Age saved! Now choose your country:", reply_markup=country_keyboard())
-
 async def set_profile(update, context):
     u = update.effective_user; reg_user(u)
     if not users[u.id].get("age"):
