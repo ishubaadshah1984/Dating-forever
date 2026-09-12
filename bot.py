@@ -113,32 +113,49 @@ async def start_cmd(update, context):
     await update.message.reply_text(f"Welcome back {u.first_name}!", reply_markup=InlineKeyboardMarkup(kb))
     
 async def set_age(update, context):
-    u = update.effective_user
+    msg = update.message
+    u = msg.from_user
     uid = u.id
     if uid not in users:
-        users[uid] = {"uid": uid, "name": u.first_name, "anon": f"Stranger{uid % 10000}", "age": None, "bio": ""}
+        users[uid] = { "name": u.first_name, "anon": anon_name(uid), "age": None,
+                       "country": None, "bio": None, "username": u.username or ""
+                     }
+    reg_user(u)
 
-    # MATCHED / ALREADY-SET USERS -> return immediately
-    if users[uid].get("age"):
+    # Already fully registered + matched → relay to partner
+    if uid in chats and users[uid].get("age") and users[uid].get("country"):
+        await update_msg(update, context)
         return
 
-    text = update.message.text
-    try:
-        age = int(text)
-        if not (10 <= age <= 99):
-            await update.message.reply_text("Age must be 10–99. Try again:")
+    # New user: capture age
+    if not users[uid].get("age"):
+        try:
+            age = int(msg.text)
+        except ValueError:
+            await msg.reply_text("Please send a number for your age:")
             return
-    except ValueError:
-        await update.message.reply_text("Please send a number for your age:")
+        if not (10 <= age <= 99):
+            await msg.reply_text("Age must be 10–99. Try again:")
+            return
+        users[uid]["age"] = age
+        save_users()
+        await msg.reply_text(f"✅ Age saved: {age}\nNow pick your country:",
+                             reply_markup=country_keyboard())
         return
 
-    users[uid]["age"] = age
-    pending.append(uid)                      # ← ADD TO QUEUE
-    await update.message.reply_text(f"Age set to {age}! Sending you to the queue now...")
-    try:
-        await try_match(context)             # ← TRIGGER MATCHING
-    except Exception as e:
-        print(f"match error: {e}")
+    # Has age but no country → show country picker
+    if not users[uid].get("country"):
+        await msg.reply_text("Pick your country:", reply_markup=country_keyboard())
+        return
+
+    # Has age + country → bio capture
+    users[uid]["bio"] = msg.text
+    save_users()
+    kb = [[InlineKeyboardButton("🔍 Find partner", callback_data="find")]]
+    if is_admin(uid): kb.append([InlineKeyboardButton("🛡️ Admin", callback_data="admin_panel")])
+    await msg.reply_text(f"✅ Profile complete!\n{profile_text(uid)}",
+                         reply_markup=InlineKeyboardMarkup(kb))
+    
 async def set_profile(update, context):
     u = update.effective_user; reg_user(u)
     if not users[u.id].get("age"):
