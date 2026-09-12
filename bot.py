@@ -338,7 +338,7 @@ async def banned_cb(update, context):
     await q.answer()
     await q.message.reply_text("🚫 Banned IDs:\n" + "\n".join(str(b) for b in banned))
 
-def admin_panel_cb(update, context):
+async def admin_panel_cb(update, context):
     q = update.callback_query
     if not is_admin(q.from_user.id):
         return q.answer("Not allowed", show_alert=True)
