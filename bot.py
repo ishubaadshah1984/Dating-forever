@@ -472,7 +472,7 @@ async def post_init(app):
         BotCommand("view", "View user"),
     ])
     
-def main():
+
 def main():
     app = Application.builder().token(TOKEN).build()
 
