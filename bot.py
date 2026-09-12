@@ -195,6 +195,8 @@ async def find_cb(update, context):
     reg_user(q.from_user)
     if not users[uid].get("age") or not users[uid].get("country"):
         return await q.answer("Set age & country first!", show_alert=True)
+    if uid in chats or uid in pending:
+        return await q.answer("Already searching or matched!")
     pending.append(uid)
     await q.answer("Searching… 🌊")
     await try_match(context)
