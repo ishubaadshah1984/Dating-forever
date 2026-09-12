@@ -261,14 +261,18 @@ async def reply_cb(update, context):
     await q.answer("Unknown action")
 
 async def reaction_cb(update, context):
+    print(f"REACTION RECEIVED: {update}")
     ur = update.message_reaction
     if not ur:
         return
     uid = ur.user.id
+    print(f"REACTION: user={uid}, banned={uid in banned}")
     if uid in banned:
         return
     partner = chats.get(uid)
+    print(f"REACTION: partner={partner}")
     if not partner or chats.get(partner) != uid:
+        print(f"REACTION: PAIRING MISMATCH — chats[{uid}]={partner}, chats[{partner}]={chats.get(partner)}")
         return
 
     msg_kind = "message"
@@ -301,6 +305,7 @@ async def reaction_cb(update, context):
 
     if ur.new_reaction:
         emoji = ur.new_reaction[0].emoji
+        print(f"REACTION: relay ADD {emoji} on {msg_kind} to {partner}")
         try:
             await context.bot.send_message(
                 partner, f"Reacted {emoji} on your {msg_kind}")
@@ -309,12 +314,12 @@ async def reaction_cb(update, context):
 
     if ur.old_reaction and not ur.new_reaction:
         emoji = ur.old_reaction[0].emoji
+        print(f"REACTION: relay REMOVE {emoji} on {msg_kind} to {partner}")
         try:
             await context.bot.send_message(
                 partner, f"Removed {emoji} on your {msg_kind}")
         except Exception as e:
             print(f"REACTION SEND FAILED: {e}")
-
 async def admin_only(update, context):
     await update.message.reply_text("⛔ Admins only.")
 
