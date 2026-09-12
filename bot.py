@@ -24,6 +24,7 @@ def load_users():
     except Exception as e:
         print("load_users failed:", e)
         users = {}
+        
 def save_users():
     try:
         with open(DATA_FILE, "w") as f:
