@@ -421,14 +421,11 @@ def main():
     # UI callbacks
     app.add_handler(CallbackQueryHandler(main_cb))
 
-    # RELAY FIRST — catches all matched senders (fixes swallowing bug)
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, update_msg))
-
-    # Age-capture LAST — only new users (guard inside set_age returns for the rest)
+    # ONE text handler — routes by user state (age / country / chat)
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, set_age))
 
     app.run_polling()
 
-# Entry guard — FIXED (was missing __)
+# Entry guard
 if __name__ == "__main__":
     main()
