@@ -383,7 +383,7 @@ async def main_cb(update, context):
     if q.data == "banned_list": return await banned_cb(update, context)
     return await reply_cb(update, context)
 
-def admin_panel(update, context):
+async def admin_panel(update, context):
     uid = update.effective_user.id
     if not is_admin(uid):
         update.message.reply_text("⛔ Not authorized.")
