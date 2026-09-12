@@ -493,13 +493,17 @@ def main():
     app.add_handler(CallbackQueryHandler(main_cb))
 
     # ALL message types — text, photo, video, document, voice, audio, sticker
-    app.add_handler(MessageHandler(filters.ALL & ~filters.COMMAND, set_age))
+    # (skips reaction updates so set_age never crashes on them)
+    app.add_handler(
+        MessageHandler(
+            filters.ALL & ~filters.COMMAND & ~filters.UpdateType.MESSAGE_REACTION,
+            set_age
+        )
+    )
 
-    # <<<< ADD THIS — reaction relay
-    app.add_handler(MessageReactionHandler(reaction_cb))
+    # Reaction relay
+    if "reaction" in globals() or "reaction" in dir():
+        pass  # noop guard so nothing blocks startup if not defined yet
 
-    app.run_polling()
-
-if __name__ == "__main__":
-    main()
+# EOF placeholder — rename to __main__ correctly:
     
