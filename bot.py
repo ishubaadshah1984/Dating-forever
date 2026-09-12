@@ -331,6 +331,7 @@ async def post_init(app):
         BotCommand("logs", "Show logs"),
         BotCommand("view", "View user"),
     ])
+    
 def main():
     app = Application.builder().token(TOKEN).build()
 
