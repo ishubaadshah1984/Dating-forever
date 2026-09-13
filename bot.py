@@ -155,6 +155,18 @@ async def set_age(update, context):
                              reply_markup=country_keyboard())
         return
 
+    # Country already set → this text is the BIO
+    if not users[uid].get("bio"):
+        users[uid]["bio"] = msg.text
+        save_users()
+        await msg.reply_text(f"✅ Bio saved!\nNow tap 🔍 Find partner.",
+                             reply_markup=find_keyboard())
+        return
+
+    # Fully registered but NOT matched → nudge to find partner
+    await msg.reply_text("You're not matched yet. Hit 🔍 Find partner.",
+                         reply_markup=find_keyboard())
+
     # already have age + country → any text is a bio
     if users[uid].get("age") and users[uid].get("country"):
         users[uid]["bio"] = msg.text
