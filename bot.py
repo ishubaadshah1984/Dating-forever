@@ -1,4 +1,4 @@
-fromort asyncio, json
+import asyncio, json
 from telegram import BotCommand
 import logging, os, re, datetime
 import threading
