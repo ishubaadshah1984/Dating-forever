@@ -503,6 +503,20 @@ async def post_init(app):
         BotCommand("logs", "Show logs"),
         BotCommand("view", "View user"),
     ])
+
+    # ─── Load persisted state (survives redeploys) ───
+    try:
+        with open("telegram_data.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+        users.update(data.get("users", {}))
+        banned.update(data.get("banned", []))
+        for pe, pa in (data.get("chats") or {}).items():
+            chats[int(pe)] = int(pa)
+        print(f"[post_init] loaded: {len(users)} users, {len(chats)} active chats")
+    except FileNotFoundError:
+        print("[post_init] no save file yet — starting fresh")
+    except Exception as e:
+        print(f"[post_init] load error: {e}")
     
 
 def main():
