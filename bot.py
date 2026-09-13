@@ -308,7 +308,27 @@ async def update_msg(update, context):
         print(f"DELIVERED to {partner_id}")
     except Exception as e:
         print(f"SEND FAILED to {partner_id}: {type(e).__name__}: {e}")
-        
+
+async def edit_handler(update, context):
+    em = update.edited_message
+    if not em or not em.text:
+        return
+    uid = em.from_user.id
+    if uid in banned:
+        return
+    partner_id = chats.get(uid)
+    if not partner_id or chats.get(partner_id) != uid:
+        return
+    old_id = msg_map.get(f"{uid}:{em.message_id}")
+    if old_id is None:
+        return
+    try:
+        await context.bot.edit_message_text(
+            chat_id=partner_id, message_id=old_id, text=em.text
+        )
+    except Exception:
+        pass
+
 async def reply_cb(update, context):
     q = update.callback_query; uid = q.from_user.id
     if q.data.startswith("msg_"):
