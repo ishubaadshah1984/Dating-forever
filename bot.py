@@ -1,4 +1,4 @@
-asyncyncport asyncio, json
+fromort asyncio, json
 from telegram import BotCommand
 import logging, os, re, datetime
 import threading
@@ -376,6 +376,7 @@ async def reaction_cb(update, context):
                 partner, f"Removed {emoji} on your {msg_kind}")
         except Exception as e:
             print(f"REACTION SEND FAILED: {e}")
+            
 async def admin_only(update, context):
     await update.message.reply_text("⛔ Admins only.")
 
