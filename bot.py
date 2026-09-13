@@ -551,9 +551,6 @@ async def post_init(app):
 def main():
     app = Application.builder().token(TOKEN).build()
 
-    # Hooks — run once, after app build
-    app.post_init = post_init
-
     # Command handlers
     app.add_handler(CommandHandler("start", start_cmd))
     app.add_handler(CommandHandler("users", users_cmd))
@@ -578,6 +575,9 @@ def main():
 
     # Reaction relay
     app.add_handler(MessageReactionHandler(reaction_cb))
+
+    # Load saved data BEFORE polling starts — the missing boot step
+    load_users()
 
     app.run_polling()
 
