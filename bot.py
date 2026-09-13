@@ -27,24 +27,29 @@ def load_users():
         
 def save_users():
     try:
-        with open(DATA_FILE, "w") as f:
-            json.dump(users, f, ensure_ascii=False)
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump({
+                "users": users,
+                "banned": list(banned),
+                "chats": chats,
+                "pending": pending,
+            }, f, ensure_ascii=False)
     except Exception as e:
         print("save_users failed:", e)
 
-users = {}
-load_users()
-matches = {}
-chats = {}
-pending = []
-banned = set()
-URL_PATTERN = re.compile(r'https?://\S+|www\.\S+')
-LOG_FILE = "logs.jsonl"
-
-COUNTRIES = ["🇮🇳 India", "🇵🇰 Pakistan", "🇺🇸 USA", "🇬🇧 UK", "🇺🇦 Ukraine",
-             "🇷🇺 Russia", "🇧🇩 Bangladesh", "🇳🇵 Nepal", "🇱🇰 Sri Lanka",
-             "🇦🇪 UAE", "🇸🇦 Saudi Arabia", "🇩🇪 Germany", "🇫🇷 France",
-             "🇨🇦 Canada", "🇦🇺 Australia", "🇯🇵 Japan", "🇨🇳 China"]
+def load_users():
+    try:
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        users.update(data.get("users", {}))
+        banned.update(data.get("banned", []))
+        for u, pa in (data.get("chats") or {}).items():
+            chats[int(u)] = int(pa)
+        pending.extend(data.get("pending", []))
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        print("load_users failed:", e)
 
 def anon_name(uid):
     return f"User_{str(uid)[-4:]}"
