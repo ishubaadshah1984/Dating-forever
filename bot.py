@@ -143,6 +143,8 @@ async def start_cmd(update, context):
     if uid in pending:
         pending.remove(uid)
 
+    save_users()   # persist after cleanup
+
     if not users[uid].get("age"):
         await update.message.reply_text(
             f"Hi {u.first_name}! Send your age first.\nExample: 24")
