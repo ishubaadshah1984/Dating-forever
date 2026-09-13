@@ -1,17 +1,23 @@
-import asyncio, json
-from telegram import BotCommand
-import logging, os, re, datetime
-import threading
-from http.server import HTTPServer, BaseHTTPRequestHandler
+import json
+import logging
+import os
+import re
+import datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, MessageHandler, MessageReactionHandler, filters
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 TOKEN = os.getenv("TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "6205405530"))
 
 DATA_FILE = "users.json"
+
+# Global state — module-level declarations
+users = {}
+banned = set()
+chats = {}
+pending = []
+matches = {}
 
 def load_users():
     global users, banned, chats, pending
