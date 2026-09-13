@@ -26,7 +26,7 @@ pending = []
 matches = {}
 
 def load_users():
-    global users, banned, chats, pending
+    global users, banned, chats, pending, msg_map
     try:
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -35,6 +35,7 @@ def load_users():
         for u, pa in (data.get("chats") or {}).items():
             chats[int(u)] = int(pa)
         pending.extend(data.get("pending", []))
+        msg_map.update(data.get("msg_map", {}))   # NEW line
     except FileNotFoundError:
         pass
     except Exception as e:
