@@ -1,4 +1,4 @@
-import asyncio, json
+asyncyncport asyncio, json
 from telegram import BotCommand
 import logging, os, re, datetime
 import threading
@@ -231,14 +231,17 @@ async def country_cb(update, context):
     )
 
 async def find_cb(update, context):
-    q = update.callback_query; uid = q.from_user.id
-    if uid in banned: return await q.answer("🚫 Banned")
+    q = update.callback_query
+    uid = q.from_user.id
+    if uid in banned:
+        return await q.answer("🚫 Banned")
     reg_user(q.from_user)
     if not users[uid].get("age") or not users[uid].get("country"):
         return await q.answer("Set age & country first!", show_alert=True)
     if uid in chats or uid in pending:
         return await q.answer("Already searching or matched!")
     pending.append(uid)
+    save_users()   # persist pending
     await q.answer("Searching… 🌊")
     await try_match(context)
 
