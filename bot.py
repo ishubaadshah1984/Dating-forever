@@ -176,7 +176,7 @@ async def set_age(update, context):
         await update_msg(update, context)
         return
 
-    # Registration flow — only capture age from TEXT
+    # Registration flow — capture age from TEXT
     if not users[uid].get("age"):
         if not msg.text:
             await msg.reply_text("Please send your age as a number:")
@@ -206,13 +206,6 @@ async def set_age(update, context):
     # Fully registered but NOT matched → nudge to find partner
     await msg.reply_text("You're not matched yet. Hit 🔍 Find partner.",
                          reply_markup=find_keyboard())
-
-    # already have age + country → any text is a bio
-    if users[uid].get("age") and users[uid].get("country"):
-        users[uid]["bio"] = msg.text
-        save_users()
-        await msg.reply_text(f"✅ Bio saved!\n{profile_text(uid)}")
-        return
     
 async def country_cb(update, context):
     q = update.callback_query
