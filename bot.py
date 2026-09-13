@@ -109,13 +109,33 @@ async def try_match(context):
         await context.bot.send_message(b, f"🎉 Matched with {users[a]['anon']}!\n{profile_text(a)}", reply_markup=InlineKeyboardMarkup(kb2))
 
 async def start_cmd(update, context):
-    u = update.effective_user; reg_user(u)
-    if not users[u.id].get("age"):
-        await update.message.reply_text(f"Hi {u.first_name}! Send your age first.\nExample: 24")
+    u = update.effective_user
+    if u is None:
         return
+    reg_user(u)
+    uid = u.id
+
+    # Hard reset — clear any stale pairing / pending spot
+    if uid in chats:
+        old = chats.pop(uid, None)
+        if old is not None:
+            chats.pop(old, None)
+            matches.pop(old, None)
+        matches.pop(uid, None)
+    if uid in pending:
+        pending.remove(uid)
+
+    if not users[uid].get("age"):
+        await update.message.reply_text(
+            f"Hi {u.first_name}! Send your age first.\nExample: 24")
+        return
+
     kb = [[InlineKeyboardButton("🔍 Find partner", callback_data="find")]]
-    if is_admin(u.id): kb.append([InlineKeyboardButton("🛡️ Admin", callback_data="admin_panel")])
-    await update.message.reply_text(f"Welcome back {u.first_name}!", reply_markup=InlineKeyboardMarkup(kb))
+    if is_admin(u.id):
+        kb.append([InlineKeyboardButton("🛡️ Admin", callback_data="admin_panel")])
+    await update.message.reply_text(
+        f"Welcome back {u.first_name}!",
+        reply_markup=InlineKeyboardMarkup(kb))
     
 async def set_age(update, context):
     msg = update.message
