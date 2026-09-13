@@ -154,6 +154,13 @@ async def set_age(update, context):
         await msg.reply_text(f"✅ Age saved: {age}\nNow pick your country:",
                              reply_markup=country_keyboard())
         return
+
+    # already have age + country → any text is a bio
+    if users[uid].get("age") and users[uid].get("country"):
+        users[uid]["bio"] = msg.text
+        save_users()
+        await msg.reply_text(f"✅ Bio saved!\n{profile_text(uid)}")
+        return
     
 async def set_profile(update, context):
     u = update.effective_user; reg_user(u)
