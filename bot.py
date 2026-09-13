@@ -13,6 +13,21 @@ ADMIN_ID = int(os.getenv("ADMIN_ID", "6205405530"))
 
 DATA_FILE = "users.json"
 
+def load_users():
+    global users, banned, chats, pending
+    try:
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        users.update(data.get("users", {}))
+        banned.update(data.get("banned", []))
+        for u, pa in (data.get("chats") or {}).items():
+            chats[int(u)] = int(pa)
+        pending.extend(data.get("pending", []))
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        print("load_users failed:", e)
+
 def save_users():
     try:
         with open(DATA_FILE, "w", encoding="utf-8") as f:
