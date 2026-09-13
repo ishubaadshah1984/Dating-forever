@@ -497,10 +497,9 @@ def main():
     app.add_handler(CallbackQueryHandler(main_cb))
 
     # ALL message types — text, photo, video, document, voice, audio, sticker
-    # (excludes reaction updates so set_age never crashes on them)
     app.add_handler(
         MessageHandler(
-            filters.ALL & ~filters.COMMAND & ~filters.UpdateType.MESSAGE_REACTION,
+            filters.ALL & ~filters.COMMAND,
             set_age
         )
     )
@@ -510,6 +509,6 @@ def main():
 
     app.run_polling()
 
-if __name__ == "__main__":
+if __name__ == "__main__":   # <- double underscores
     main()
     
