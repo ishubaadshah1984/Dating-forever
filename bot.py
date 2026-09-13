@@ -162,18 +162,6 @@ async def set_age(update, context):
         await msg.reply_text(f"✅ Bio saved!\n{profile_text(uid)}")
         return
     
-async def set_profile(update, context):
-    u = update.effective_user; reg_user(u)
-    if not users[u.id].get("age"):
-        await set_age(update, context); return
-    if not users[u.id].get("country"):
-        await update.message.reply_text("Please pick a country from the list.", reply_markup=country_keyboard()); return
-    users[u.id]["bio"] = update.message.text
-    save_users()
-    kb = [[InlineKeyboardButton("🔍 Find partner", callback_data="find")]]
-    if is_admin(u.id): kb.append([InlineKeyboardButton("🛡️ Admin", callback_data="admin_panel")])
-    await update.message.reply_text(f"✅ Profile complete!\n{profile_text(u.id)}", reply_markup=InlineKeyboardMarkup(kb))
-
 async def country_cb(update, context):
     q = update.callback_query
     uid = q.from_user.id
