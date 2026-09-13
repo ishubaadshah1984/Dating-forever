@@ -245,6 +245,17 @@ async def find_cb(update, context):
     await q.answer("Searching… 🌊")
     await try_match(context)
 
+async def stop_cb(update, context):
+    q = update.callback_query
+    uid = q.from_user.id
+    old = chats.pop(uid, None)
+    if old is not None:
+        chats.pop(old, None)
+        matches.pop(old, None)
+    matches.pop(uid, None)
+    save_users()
+    await q.answer("❌ Chat ended.")
+
 async def update_msg(update, context):
     msg = update.message
     if not msg:
