@@ -13,18 +13,6 @@ ADMIN_ID = int(os.getenv("ADMIN_ID", "6205405530"))
 
 DATA_FILE = "users.json"
 
-def load_users():
-    global users
-    try:
-        if os.path.exists(DATA_FILE):
-            with open(DATA_FILE, "r") as f:
-                users = json.load(f)
-        else:
-            users = {}
-    except Exception as e:
-        print("load_users failed:", e)
-        users = {}
-        
 def save_users():
     try:
         with open(DATA_FILE, "w", encoding="utf-8") as f:
