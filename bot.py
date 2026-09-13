@@ -14,6 +14,10 @@ ADMIN_ID = int(os.getenv("ADMIN_ID", "6205405530"))
 
 DATA_FILE = "users.json"
 
+# Countries for the age/country registration step
+COUNTRIES = ["India", "USA", "UK", "Germany", "France", "Russia",
+             "Canada", "Australia", "UAE", "Japan", "Brazil", "Mexico"]
+
 # Global state — module-level declarations
 users = {}
 banned = set()
