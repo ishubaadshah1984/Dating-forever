@@ -48,10 +48,10 @@ def save_users():
                 "banned": list(banned),
                 "chats": chats,
                 "pending": pending,
+                "msg_map": msg_map,   # NEW
             }, f, ensure_ascii=False)
     except Exception as e:
         print("save_users failed:", e)
-
 def anon_name(uid):
     return f"User_{str(uid)[-4:]}"
 
