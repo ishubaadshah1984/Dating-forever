@@ -440,7 +440,8 @@ async def main_cb(update, context):
     if q.data == "stats": return await stats_cb(update, context)
     if q.data == "chats": return await chats_cb(update, context)
     if q.data == "banned_list": return await banned_cb(update, context)
-    return await reply_cb(update, context)
+    await q.answer("Unknown action")
+    return
 
 async def admin_panel(update, context):
     uid = update.effective_user.id
