@@ -407,6 +407,17 @@ async def unban_cmd(update, context):
     banned.discard(target)
     await update.message.reply_text(f"✅ Unbanned {target}.")
 
+async def stop_cb(update, context):
+    q = update.callback_query
+    uid = q.from_user.id
+    old = chats.pop(uid, None)
+    if old is not None:
+        chats.pop(old, None)
+        matches.pop(old, None)
+    matches.pop(uid, None)
+    save_users()
+    await q.answer("❌ Chat ended.")
+
 async def lookup_cmd(update, context):
     if not is_admin(update.effective_user.id): return await admin_only(update, context)
     if not context.args: return await update.message.reply_text("Usage: /lookup <id>")
