@@ -609,11 +609,21 @@ def main():
     # Reaction relay
     app.add_handler(MessageReactionHandler(reaction_cb))
 
-    # Load saved data BEFORE polling starts — the missing boot step
+    # NEW: forward message edits so the receiver sees updated text
+    app.add_handler(
+        MessageHandler(
+            filters.TEXT & ~filters.COMMAND,
+            edit_handler,
+            edited_updates_only=True
+        )
+    )
+
+    # Load saved data BEFORE polling starts
     load_users()
 
     app.run_polling()
 
 if __name__ == "__main__":
     main()
-    
+  
+  
