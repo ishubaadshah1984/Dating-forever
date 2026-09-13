@@ -118,9 +118,13 @@ async def start_cmd(update, context):
     await update.message.reply_text(f"Welcome back {u.first_name}!", reply_markup=InlineKeyboardMarkup(kb))
     
 async def set_age(update, context):
+async def set_age(update, context):
     msg = update.message
     if msg is None or msg.from_user is None:
         return
+    if msg.from_user.is_bot:
+        return
+
     u = msg.from_user
     uid = u.id
     if uid not in users:
