@@ -97,22 +97,35 @@ def country_keyboard():
 async def try_match(context):
     while len(pending) >= 2:
         a = pending.pop(0)
-        if not pending:
-            pending.insert(0, a)
+
+        # Find a valid partner for a
+        while pending:
+            b = pending.pop(0)
+            if a not in banned and b not in banned and a != b:
+                break
+        else:
+            # No valid partner left — requeue a (if not banned) and stop
+            if a not in banned:
+                pending.insert(0, a)
             break
-        b = pending.pop(0)
-        if a in banned or b in banned or a == b:
-            pending.insert(0, a)
-            continue
+
+        # Pair a & b
         chats[a] = b
         chats[b] = a
         matches[a] = {"other_anon": users[b]["anon"], "other": b}
         matches[b] = {"other_anon": users[a]["anon"], "other": a}
-        kb = [[InlineKeyboardButton("✍️ Say hi", callback_data=f"msg_{b}")]]
-        await context.bot.send_message(a, f"🎉 Matched with {users[b]['anon']}!\n{profile_text(b)}", reply_markup=InlineKeyboardMarkup(kb))
-        kb2 = [[InlineKeyboardButton("✍️ Say hi", callback_data=f"msg_{a}")]]
-        await context.bot.send_message(b, f"🎉 Matched with {users[a]['anon']}!\n{profile_text(a)}", reply_markup=InlineKeyboardMarkup(kb2))
 
+        kb = [[InlineKeyboardButton("✍️ Say hi", callback_data=f"msg_{b}")]]
+        await context.bot.send_message(
+            a, f"🎉 Matched with {users[b]['anon']}!\n{profile_text(b)}",
+            reply_markup=InlineKeyboardMarkup(kb))
+        kb2 = [[InlineKeyboardButton("✍️ Say hi", callback_data=f"msg_{a}")]]
+        await context.bot.send_message(
+            b, f"🎉 Matched with {users[a]['anon']}!\n{profile_text(a)}",
+            reply_markup=InlineKeyboardMarkup(kb2))
+
+        save_users()
+        
 async def start_cmd(update, context):
     u = update.effective_user
     if u is None:
