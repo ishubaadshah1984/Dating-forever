@@ -252,7 +252,6 @@ async def stop_cb(update, context):
     await q.answer("❌ Chat ended.")
 
 async def update_msg(update, context):
-async def update_msg(update, context):
     global msg_map
     msg = update.message
     if not msg:
@@ -313,6 +312,7 @@ async def update_msg(update, context):
         print(f"DELIVERED to {partner_id}")
     except Exception as e:
         print(f"SEND FAILED to {partner_id}: {type(e).name}: {e}")
+      
 async def edit_handler(update, context):
     em = update.edited_message
     if not em or not em.text:
