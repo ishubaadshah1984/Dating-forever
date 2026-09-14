@@ -614,7 +614,10 @@ def main():
 
     # NEW: forward message edits so the receiver sees updated text
     app.add_handler(
-        MessageHandler(filters.TEXT & ~filters.COMMAND, edit_handler),
+        MessageHandler(
+            filters.UpdateType.EDITED_MESSAGE,
+            edit_handler
+        ),
         group=1
     )
 
