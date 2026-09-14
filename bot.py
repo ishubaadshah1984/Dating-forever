@@ -614,11 +614,8 @@ def main():
 
     # NEW: forward message edits so the receiver sees updated text
     app.add_handler(
-        MessageHandler(
-            filters.TEXT & ~filters.COMMAND,
-            edit_handler,
-            edited_updates_only=True
-        )
+        MessageHandler(filters.TEXT & ~filters.COMMAND, edit_handler),
+        group=1
     )
 
     # Load saved data BEFORE polling starts
