@@ -314,6 +314,7 @@ async def update_msg(update, context):
         print(f"SEND FAILED to {partner_id}: {type(e).name}: {e}")
       
 async def edit_handler(update, context):
+    print(f"EDIT fired: {update.edited_message}")
     em = update.edited_message
     if not em or not em.text:
         return
