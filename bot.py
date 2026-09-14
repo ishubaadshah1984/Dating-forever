@@ -252,6 +252,8 @@ async def stop_cb(update, context):
     await q.answer("❌ Chat ended.")
 
 async def update_msg(update, context):
+async def update_msg(update, context):
+    global msg_map
     msg = update.message
     if not msg:
         return
@@ -281,7 +283,9 @@ async def update_msg(update, context):
 
     try:
         if msg.text:
-            await context.bot.send_message(partner_id, msg.text)
+            relayed = await context.bot.send_message(partner_id, msg.text)
+            msg_map[f"{uid}:{msg.message_id}"] = relayed.message_id
+            save_users()
         elif msg.photo:
             await context.bot.send_photo(
                 partner_id,
@@ -308,8 +312,7 @@ async def update_msg(update, context):
             await context.bot.send_sticker(partner_id, msg.sticker.file_id)
         print(f"DELIVERED to {partner_id}")
     except Exception as e:
-        print(f"SEND FAILED to {partner_id}: {type(e).__name__}: {e}")
-
+        print(f"SEND FAILED to {partner_id}: {type(e).name}: {e}")
 async def edit_handler(update, context):
     em = update.edited_message
     if not em or not em.text:
