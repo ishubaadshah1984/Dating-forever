@@ -27,8 +27,11 @@ msg_map = {}
 
 # ---------- broadcast helpers & handlers ----------
 def load_user_ids():
-    with open("users.json", "r") as f:
-        data = json.load(f)
+    try:
+        with open("users.json", "r") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        return []
     u = data.get("users", data) if isinstance(data, dict) else data
     ids = list(u.keys()) if isinstance(u, dict) else list(u)
     return [int(i) for i in ids]
