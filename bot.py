@@ -237,6 +237,12 @@ async def set_age(update, context):
 
     u = msg.from_user
     uid = u.id
+
+    # 🚫 BANNED users can't do anything at all
+    if uid in banned:
+        await msg.reply_text("You're banned.")
+        return
+
     if uid not in users:
         users[uid] = {"name": u.first_name, "anon": anon_name(uid), "age": None,
                       "country": None, "bio": None, "username": u.username or ""}
@@ -272,25 +278,10 @@ async def set_age(update, context):
 
     if not users[uid].get("bio"):
         await msg.reply_text("Last step — send your bio (a short intro):")
-        users[uid]["bio_pending"] = True
-        save_users()
-        return
+users[uid]["bio_pending"] = True     # ← keep this inside the function body!
+save_users()                         # ← these were mis-indented before?
+return                               # ← check original formatting!
 
-    if users[uid].get("bio_pending"):
-        if not msg.text:
-            await msg.reply_text("Send your bio as text, please:")
-            return
-        users[uid]["bio"] = msg.text
-        users[uid]["bio_pending"] = False
-        save_users()
-        await msg.reply_text(f"✅ Bio saved!\nNow tap 🔍 Find partner.",
-                             reply_markup=find_keyboard())
-        return
-
-    if uid not in pending and uid not in chats:
-        pending.append(uid)
-        save_users()
-    await try_match(context)
   
 async def country_cb(update, context):
     q = update.callback_query
