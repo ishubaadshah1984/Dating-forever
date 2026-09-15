@@ -619,11 +619,11 @@ def main():
     # UI callbacks
     app.add_handler(CallbackQueryHandler(main_cb))
 
-    # ALL message types — text, photo, video, document, voice, audio, sticker
+    # ALL message types — routes through set_age (registration + relay)
     app.add_handler(
         MessageHandler(
             filters.ALL & ~filters.COMMAND,
-            update_msg
+            set_age
         )
     )
 
