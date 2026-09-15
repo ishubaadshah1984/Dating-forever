@@ -162,9 +162,7 @@ async def start_cmd(update, context):
     
 async def set_age(update, context):
     msg = update.message
-    if msg is None or msg.from_user is None:
-        return
-    if msg.from_user.is_bot:
+    if msg is None or msg.from_user is None or msg.from_user.is_bot:
         return
 
     u = msg.from_user
@@ -175,7 +173,7 @@ async def set_age(update, context):
     reg_user(u)
 
     # Fully registered + matched → relay ANY message type
-    if uid in chats and users[uid].get("age") and users[uid].get("country"):
+    if uid in chats and users[uid].get("age") and users[uid].get("country") and users[uid].get("bio"):
         await update_msg(update, context)
         return
 
@@ -198,9 +196,26 @@ async def set_age(update, context):
                              reply_markup=country_keyboard())
         return
 
-    # Country already set → this text is the BIO
+    # Country not set → wait for country selection (callback)
+    if not users[uid].get("country"):
+        await msg.reply_text("Please pick your country from the keyboard above.",
+                             reply_markup=country_keyboard())
+        return
+
+    # Bio not set → ask for it (text)
     if not users[uid].get("bio"):
+        await msg.reply_text("Last step — send your bio (a short intro):")
+        users[uid]["bio_pending"] = True
+        save_users()
+        return
+
+    # Biopending → this text IS the bio
+    if users[uid].get("bio_pending"):
+        if not msg.text:
+            await msg.reply_text("Send your bio as text, please:")
+            return
         users[uid]["bio"] = msg.text
+        users[uid]["bio_pending"] = False
         save_users()
         await msg.reply_text(f"✅ Bio saved!\nNow tap 🔍 Find partner.",
                              reply_markup=find_keyboard())
