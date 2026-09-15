@@ -257,8 +257,8 @@ async def find_cb(update, context):
     if uid in chats or uid in pending:
         return await q.answer("Already searching or matched!")
     pending.append(uid)
-    save_users()   # persist pending
-    await q.answer("Searching… 🌊")
+    save_users()
+    await q.answer("Searching...")
     await try_match(context)
 
 async def stop_cb(update, context):
