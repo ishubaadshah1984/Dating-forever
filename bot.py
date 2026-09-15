@@ -24,6 +24,7 @@ banned = set()
 chats = {}
 pending = []
 matches = {}
+msg_map = {}
 
 def load_users():
     global users, banned, chats, pending, msg_map
