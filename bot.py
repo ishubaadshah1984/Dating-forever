@@ -176,12 +176,11 @@ async def set_age(update, context):
                       "country": None, "bio": None, "username": u.username or ""}
     reg_user(u)
 
-    # Fully registered + matched → relay ANY message type
-    if uid in chats and users[uid].get("age") and users[uid].get("country") and users[uid].get("bio"):
+    # MATCHED → relay ANY message type. No bio gate, nothing else runs.
+    if uid in chats:
         await update_msg(update, context)
         return
 
-    # Registration flow — capture age from TEXT
     if not users[uid].get("age"):
         if not msg.text:
             await msg.reply_text("Please send your age as a number:")
@@ -200,20 +199,17 @@ async def set_age(update, context):
                              reply_markup=country_keyboard())
         return
 
-    # Country not set → wait for country selection (callback)
     if not users[uid].get("country"):
         await msg.reply_text("Please pick your country from the keyboard above.",
                              reply_markup=country_keyboard())
         return
 
-    # Bio not set → ask for it (text)
     if not users[uid].get("bio"):
         await msg.reply_text("Last step — send your bio (a short intro):")
         users[uid]["bio_pending"] = True
         save_users()
         return
 
-    # Biopending → this text IS the bio
     if users[uid].get("bio_pending"):
         if not msg.text:
             await msg.reply_text("Send your bio as text, please:")
@@ -225,10 +221,11 @@ async def set_age(update, context):
                              reply_markup=find_keyboard())
         return
 
-    # Fully registered but NOT matched → nudge to find partner
-    await msg.reply_text("You're not matched yet. Hit 🔍 Find partner.",
-                         reply_markup=find_keyboard())
-    
+    if uid not in pending and uid not in chats:
+        pending.append(uid)
+        save_users()
+    await try_match(context)
+  
 async def country_cb(update, context):
     q = update.callback_query
     uid = q.from_user.id
