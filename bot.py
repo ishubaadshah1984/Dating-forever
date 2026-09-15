@@ -36,15 +36,30 @@ msg_map = {}
 
 # ---------- broadcast helpers & handlers ----------
 def load_user_ids():
+    global users, banned, chats, pending
     try:
-        with open("users.json", "r") as f:
+        with open(DATA_FILE) as f:           # ← must match save_users' file!
             data = json.load(f)
     except FileNotFoundError:
+        users = {}
+        banned = set()
+        chats = {}
+        pending = {}
         return []
-    u = data.get("users", data) if isinstance(data, dict) else data
-    ids = list(u.keys()) if isinstance(u, dict) else list(u)
-    return [int(i) for i in ids]
+    except Exception as e:
+        print("load failed:", e)
+        return []
 
+    # restore ALL state that save_users writes
+    saved_u = data.get("users", {})
+    users.update(saved_u)                    # don't clobber anything else loaded before
+
+    banned |= set(data.get("banned", []))     # ← THE missing line: bans survive restart
+    chats.update(data.get("chats", {}))
+    pending.update(data.get("pending", {}))
+
+    return [int(i) for i in saved_u.keys()]   # still works if anything needs it
+    
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.effective_user.id != ADMIN_ID:
         await update.message.reply_text("No access.")
