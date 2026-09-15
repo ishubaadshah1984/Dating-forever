@@ -262,19 +262,9 @@ async def update_msg(update, context):
     if uid in banned:
         return
 
-    # Forward to admin (for logging) — optional, keep or delete
-    try:
-        await context.bot.forward_message(
-            chat_id=ADMIN_ID,
-            from_chat_id=msg.chat_id,
-            message_id=msg.message_id
-        )
-    except Exception as e:
-        print(f"ADMIN FORWARD failed: {e}")
-
+    # Skip everything for non-matched users handled by set_age — assume matched here
     partner_id = chats.get(uid)
     if not partner_id or chats.get(partner_id) != uid:
-        print(f"NO PAIR: uid={uid}, partner_lookup={partner_id}")
         return
 
     try:
@@ -290,14 +280,13 @@ async def update_msg(update, context):
                 partner_id, msg.video.file_id, caption=msg.caption or "")
         elif msg.document:
             await context.bot.send_document(
-                partner_id, msg.document.file_id, caption=msg.caption or "")
+                partner_id, msg.document.file_id, caption=msg.document.caption or "")
         elif msg.voice:
             await context.bot.send_voice(partner_id, msg.voice.file_id)
         elif msg.audio:
             await context.bot.send_audio(partner_id, msg.audio.file_id)
         elif msg.sticker:
             await context.bot.send_sticker(partner_id, msg.sticker.file_id)
-        print(f"DELIVERED to {partner_id}")
     except Exception as e:
         print(f"SEND FAILED to {partner_id}: {type(e).name}: {e}")
 
