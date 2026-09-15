@@ -329,6 +329,7 @@ async def edited_msg(update, context):
             print(f"EDIT FAILED: {type(e).name}: {e}")
       
 async def edit_handler(update, context):
+    global msg_map
     print(f"EDIT fired: {update.edited_message}")
     em = update.edited_message
     if not em or not em.text:
@@ -346,8 +347,9 @@ async def edit_handler(update, context):
         await context.bot.edit_message_text(
             chat_id=partner_id, message_id=old_id, text=em.text
         )
-    except Exception:
-        pass
+        print(f"EDITED {old_id} for {partner_id}")
+    except Exception as e:
+        print(f"EDIT FAILED: {type(e).name}: {e}")
 
 async def reply_cb(update, context):
     q = update.callback_query; uid = q.from_user.id
