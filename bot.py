@@ -9,8 +9,7 @@ from telegram.ext import Application, CallbackQueryHandler, CommandHandler, Mess
 logging.basicConfig(level=logging.INFO)
 
 TOKEN = os.getenv("TOKEN")
-
-ADMIN_ID = int(os.getenv("ADMIN_ID", "6205405530"))
+ADMIN_ID = int(os.getenv("ADMIN_ID"))
 
 DATA_FILE = "users.json"
 
