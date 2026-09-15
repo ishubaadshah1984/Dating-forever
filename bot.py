@@ -100,19 +100,23 @@ def country_keyboard():
 async def try_match(context):
     while len(pending) >= 2:
         a = pending.pop(0)
+        if a in chats or a in banned:
+            continue
 
-        # Find a valid partner for a
+        partner = None
         while pending:
             b = pending.pop(0)
-            if a not in banned and b not in banned and a != b:
-                break
-        else:
-            # No valid partner left — requeue a (if not banned) and stop
+            if b in chats or b in banned or b == a:
+                continue
+            partner = b
+            break
+
+        if partner is None:
             if a not in banned:
                 pending.insert(0, a)
             break
 
-        # Pair a & b
+        b = partner
         chats[a] = b
         chats[b] = a
         matches[a] = {"other_anon": users[b]["anon"], "other": b}
