@@ -623,20 +623,19 @@ def main():
     app.add_handler(
         MessageHandler(
             filters.ALL & ~filters.COMMAND,
-            set_age
+            update_msg
         )
     )
 
     # Reaction relay
     app.add_handler(MessageReactionHandler(reaction_cb))
 
-    # NEW: forward message edits so the receiver sees updated text
+    # Forward message edits
     app.add_handler(
         MessageHandler(
             filters.UpdateType.EDITED_MESSAGE,
             edit_handler
-        ),
-        group=1
+        )
     )
 
     # Load saved data BEFORE polling starts
@@ -646,5 +645,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-  
   
