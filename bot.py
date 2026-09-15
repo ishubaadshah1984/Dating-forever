@@ -25,6 +25,59 @@ pending = []
 matches = {}
 msg_map = {}
 
+# ---------- broadcast helpers & handlers ----------
+def load_user_ids():
+    with open("users.json", "r") as f:
+        users_data = json.load(f)
+    ids = list(users_data.keys()) if isinstance(users_data, dict) else list(users_data)
+    return [int(u) for u in ids]
+
+async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_user.id != ADMIN_ID:
+        await update.message.reply_text("No access.")
+        return
+    user_ids = load_user_ids()
+    caption = None
+    parts = update.message.text.split(maxsplit=1)
+    if len(parts) > 1:
+        caption = parts[1]
+    sent = failed = 0
+    for uid in user_ids:
+        try:
+            if update.message.photo:
+                await context.bot.send_photo(chat_id=uid, photo=update.message.photo[-1].file_id, caption=caption)
+            elif update.message.video:
+                await context.bot.send_video(chat_id=uid, video=update.message.video.file_id, caption=caption)
+            elif update.message.document:
+                await context.bot.send_document(chat_id=uid, document=update.message.document.file_id, caption=caption)
+            elif update.message.audio:
+                await context.bot.send_audio(chat_id=uid, audio=update.message.audio.file_id, caption=caption)
+            else:
+                await context.bot.send_message(chat_id=uid, text=caption or "—")
+            sent += 1
+        except Exception:
+            failed += 1
+    await update.message.reply_text(f"Broadcast done — Sent: {sent} | Failed: {failed}")
+
+async def broadcast_msg(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_user.id != ADMIN_ID:
+        await update.message.reply_text("No access.")
+        return
+    parts = update.message.text.split(maxsplit=1)
+    if len(parts) < 2:
+        await update.message.reply_text("Usage: /broadcastmsg your text here")
+        return
+    text = parts[1]
+    user_ids = load_user_ids()
+    sent = failed = 0
+    for uid in user_ids:
+        try:
+            await context.bot.send_message(chat_id=uid, text=text)
+            sent += 1
+        except Exception:
+            failed += 1
+    await update.message.reply_text(f"Msg broadcast — Sent: {sent} | Failed: {failed}")
+
 def load_users():
     global users, banned, chats, pending, msg_map
     try:
