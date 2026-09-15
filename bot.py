@@ -28,9 +28,10 @@ msg_map = {}
 # ---------- broadcast helpers & handlers ----------
 def load_user_ids():
     with open("users.json", "r") as f:
-        users_data = json.load(f)
-    ids = list(users_data.keys()) if isinstance(users_data, dict) else list(users_data)
-    return [int(u) for u in ids]
+        data = json.load(f)
+    u = data.get("users", data) if isinstance(data, dict) else data
+    ids = list(u.keys()) if isinstance(u, dict) else list(u)
+    return [int(i) for i in ids]
 
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.effective_user.id != ADMIN_ID:
