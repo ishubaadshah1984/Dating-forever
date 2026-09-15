@@ -231,6 +231,7 @@ async def country_cb(update, context):
     reg_user(q.from_user)
     country = q.data.split("_", 1)[1]
     users[uid]["country"] = country
+    users[uid]["bio_pending"] = True   # ← add this
     save_users()
     await q.answer(f"Country set: {country}")
     kb = [[InlineKeyboardButton("🔍 Find partner", callback_data="find")]]
