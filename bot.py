@@ -262,11 +262,7 @@ async def update_msg(update, context):
     if uid in banned:
         return
 
-    # --- DEBUG LOGS (remove later) ---
-    print(f"RELAY fired: uid={uid}, partner={chats.get(uid)}")
-    # ----------------------------------
-
-    # Forward to admin for logging (wrapped in try so it never blocks the relay)
+    # Forward to admin (for logging) — optional, keep or delete
     try:
         await context.bot.forward_message(
             chat_id=ADMIN_ID,
@@ -288,22 +284,13 @@ async def update_msg(update, context):
             save_users()
         elif msg.photo:
             await context.bot.send_photo(
-                partner_id,
-                msg.photo[-1].file_id,
-                caption=msg.caption or ""
-            )
+                partner_id, msg.photo[-1].file_id, caption=msg.caption or "")
         elif msg.video:
             await context.bot.send_video(
-                partner_id,
-                msg.video.file_id,
-                caption=msg.caption or ""
-            )
+                partner_id, msg.video.file_id, caption=msg.caption or "")
         elif msg.document:
             await context.bot.send_document(
-                partner_id,
-                msg.document.file_id,
-                caption=msg.caption or ""
-            )
+                partner_id, msg.document.file_id, caption=msg.caption or "")
         elif msg.voice:
             await context.bot.send_voice(partner_id, msg.voice.file_id)
         elif msg.audio:
@@ -313,6 +300,33 @@ async def update_msg(update, context):
         print(f"DELIVERED to {partner_id}")
     except Exception as e:
         print(f"SEND FAILED to {partner_id}: {type(e).name}: {e}")
+
+async def edited_msg(update, context):
+    global msg_map
+    msg = update.edited_message
+    if not msg:
+        return
+    uid = msg.from_user.id
+    if uid in banned or not msg.text:
+        return
+
+    partner_id = chats.get(uid)
+    if not partner_id or chats.get(partner_id) != uid:
+        return
+
+    # Was this message relayed? If yes, edit the partner's copy in place
+    key = f"{uid}:{msg.message_id}"
+    if key in msg_map:
+        relayed_id = msg_map[key]
+        try:
+            await context.bot.edit_message_text(
+                chat_id=partner_id,
+                message_id=relayed_id,
+                text=msg.text
+            )
+            print(f"EDITED {relayed_id} for {partner_id}")
+        except Exception as e:
+            print(f"EDIT FAILED: {type(e).name}: {e}")
       
 async def edit_handler(update, context):
     print(f"EDIT fired: {update.edited_message}")
