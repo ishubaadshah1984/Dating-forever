@@ -518,13 +518,18 @@ async def users_cmd(update, context):
         await update.message.reply_text("\n".join(lines[i:i+20]))
 
 async def ban_cmd(update, context):
-    if not is_admin(update.effective_user.id): return await admin_only(update, context)
-    if not context.args: return await update.message.reply_text("Usage: /ban <id>")
-    try: target = int(context.args[0])
-    except ValueError: return await update.message.reply_text("Invalid ID.")
-    banned.add(target)
-    await update.message.reply_text(f"🚫 Banned {target}.")
+    if not is_admin(update.effective_user.id):
+        return await admin_only(update, context)
+    if not context.args:
+        return await update.message.reply_text("Usage: /ban <id>")
+    try:
+        target = int(context.args[0])
+    except ValueError:
+        return await update.message.reply_text("Invalid ID.")
 
+    banned.add(target)
+    save_users()  # ← THIS was missing — ban never hit disk
+    await update.message.reply_text(f"🚫 Banned {target}.")
 async def unban_cmd(update, context):
     if not is_admin(update.effective_user.id): return await admin_only(update, context)
     if not context.args: return await update.message.reply_text("Usage: /unban <id>")
