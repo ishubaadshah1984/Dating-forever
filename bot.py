@@ -293,10 +293,9 @@ async def set_age(update, context):
 
     if not users[uid].get("bio"):
         await msg.reply_text("Last step — send your bio (a short intro):")
-users[uid]["bio_pending"] = True     # ← keep this inside the function body!
-save_users()                         # ← these were mis-indented before?
-return                               # ← check original formatting!
-
+        users[uid]["bio_pending"] = True
+        save_users()
+        return
   
 async def country_cb(update, context):
     q = update.callback_query
