@@ -110,25 +110,7 @@ async def broadcast_msg(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             failed += 1
     await update.message.reply_text(f"Msg broadcast — Sent: {sent} | Failed: {failed}")
 
-async def end_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    uid = update.effective_user.id
 
-    # Find this user's partner (and the partner's entry back to this user)
-    partner_id = chats.get(uid)
-    if partner_id is None:
-        await update.message.reply_text("You're not in any chat. ❌")
-        return
-
-    # Remove BOTH directions so neither can message the other anymore
-    chats.pop(uid, None)
-    chats.pop(partner_id, None)
-    save_users()   # ← your relay calls save_users, so do it here too if you persist chats
-
-    try:
-        await context.bot.send_message(partner_id, "Chat ended. ❌")
-    except Exception:
-        pass
-    await update.message.reply_text("Chat ended. ❌")
 def load_users():
     global users, banned, chats, pending, msg_map
     try:
