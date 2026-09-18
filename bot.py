@@ -403,6 +403,24 @@ async def update_msg(update, context):
     except Exception as e:
         print(f"SEND FAILED to {partner_id}: {type(e).name}: {e}")
 
+async def end_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    uid = update.effective_user.id
+    partner_id = chats.get(uid)
+
+    if not partner_id or chats.get(partner_id) != uid:
+        await update.message.reply_text("You're not in any chat. ❌")
+        return
+
+    chats.pop(uid, None)
+    chats.pop(partner_id, None)
+    save_users()
+
+    try:
+        await context.bot.send_message(partner_id, "Chat ended. ❌")
+    except Exception:
+        pass
+    await update.message.reply_text("Chat ended. ❌")
+
 async def edited_msg(update, context):
     global msg_map
     msg = update.edited_message
