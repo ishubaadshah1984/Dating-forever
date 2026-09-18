@@ -751,6 +751,24 @@ def main():
         )
     )
 
+    # Dummy HTTP server so Render's health check passes (keeps it free)
+    PORT = int(os.environ.get("PORT", 8080))
+
+    class HealthHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"bot alive")
+
+        def log_message(self, *args):
+            pass
+
+    def run_http():
+        HTTPServer(("0.0.0.0", PORT), HealthHandler).serve_forever()
+
+    threading.Thread(target=run_http, daemon=True).start()
+
     # Load saved data BEFORE polling starts
     load_users()
 
