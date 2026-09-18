@@ -110,6 +110,23 @@ async def broadcast_msg(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             failed += 1
     await update.message.reply_text(f"Msg broadcast — Sent: {sent} | Failed: {failed}")
 
+async def end_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    pair = None
+    for p in PAIRS:
+        if user_id in p:
+            pair = p
+            break
+    if not pair:
+        await update.message.reply_text("You're not in any chat. ❌")
+        return
+    a, b = pair
+    PAIRS.remove(pair)
+    await context.bot.send_message(a, "Chat ended. ❌")
+    if b is not None:
+        await context.bot.send_message(b, "Chat ended. ❌")
+    await update.message.reply_text("Chat ended. ❌")
+
 def load_users():
     global users, banned, chats, pending, msg_map
     try:
