@@ -544,6 +544,7 @@ async def unban_cmd(update, context):
     banned.discard(target)
     save_users()
     await update.message.reply_text(f"✅ Unbanned {target}.")
+    
 async def unban_cmd(update, context):
     if not is_admin(update.effective_user.id):
         return await admin_only(update, context)
@@ -557,6 +558,7 @@ async def unban_cmd(update, context):
     banned.discard(target)
     save_users()  # ← add this — unban never hit disk without it
     await update.message.reply_text(f"✅ Unbanned {target}.")
+
 async def stop_cb(update, context):
     q = update.callback_query
     uid = q.from_user.id
