@@ -725,6 +725,7 @@ def main():
     app.add_handler(CommandHandler("admin", admin_panel))
     app.add_handler(CommandHandler("broadcast", broadcast))
     app.add_handler(CommandHandler("broadcastmsg", broadcast_msg))
+    app.add_handler(CommandHandler("end", end_cmd))   # ← end chat
 
     # UI callbacks
     app.add_handler(CallbackQueryHandler(main_cb))
