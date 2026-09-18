@@ -249,6 +249,11 @@ async def start_cmd(update, context):
         reply_markup=InlineKeyboardMarkup(kb))
     
 async def set_age(update, context):
+
+    async def set_age(update, context):
+    print("MSG from", update.effective_user.id if update.effective_user else None, "->", (update.effective_message.text or "")[:60])
+    # ... the rest of set_age below
+    
     msg = update.message
     if msg is None or msg.from_user is None or msg.from_user.is_bot:
         return
