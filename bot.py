@@ -22,6 +22,7 @@ ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 
 LOG_FILE = "logs.txt"
 open(LOG_FILE, "a").close()   # creates it on startup
+
 DATA_FILE = "users.json"
 
 # Countries for the age/country registration step
