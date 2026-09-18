@@ -20,6 +20,8 @@ logging.basicConfig(level=logging.INFO)
 TOKEN = os.getenv("TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 
+LOG_FILE = "logs.txt"
+open(LOG_FILE, "a").close()   # ensure the file exists
 DATA_FILE = "users.json"
 
 # Countries for the age/country registration step
